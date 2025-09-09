@@ -1,0 +1,5 @@
+class Bad is
+    method f : Integer is
+        return y   // y not declared
+    end
+end

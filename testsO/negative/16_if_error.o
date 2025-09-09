@@ -1,0 +1,8 @@
+class Bad is
+    method f is
+        if Integer(5) then   // ошибка: условие не Boolean
+            var x : Integer(1)
+        end
+    end
+end
+

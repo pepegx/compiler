@@ -1,0 +1,14 @@
+/Users/pepega/Documents/compil/lexer/LexerApp/bin/Debug/net9.0/LexerApp
+/Users/pepega/Documents/compil/lexer/LexerApp/bin/Debug/net9.0/LexerApp.deps.json
+/Users/pepega/Documents/compil/lexer/LexerApp/bin/Debug/net9.0/LexerApp.runtimeconfig.json
+/Users/pepega/Documents/compil/lexer/LexerApp/bin/Debug/net9.0/LexerApp.dll
+/Users/pepega/Documents/compil/lexer/LexerApp/bin/Debug/net9.0/LexerApp.pdb
+/Users/pepega/Documents/compil/lexer/LexerApp/obj/Debug/net9.0/LexerApp.GeneratedMSBuildEditorConfig.editorconfig
+/Users/pepega/Documents/compil/lexer/LexerApp/obj/Debug/net9.0/LexerApp.AssemblyInfoInputs.cache
+/Users/pepega/Documents/compil/lexer/LexerApp/obj/Debug/net9.0/LexerApp.AssemblyInfo.cs
+/Users/pepega/Documents/compil/lexer/LexerApp/obj/Debug/net9.0/LexerApp.csproj.CoreCompileInputs.cache
+/Users/pepega/Documents/compil/lexer/LexerApp/obj/Debug/net9.0/LexerApp.dll
+/Users/pepega/Documents/compil/lexer/LexerApp/obj/Debug/net9.0/refint/LexerApp.dll
+/Users/pepega/Documents/compil/lexer/LexerApp/obj/Debug/net9.0/LexerApp.pdb
+/Users/pepega/Documents/compil/lexer/LexerApp/obj/Debug/net9.0/LexerApp.genruntimeconfig.cache
+/Users/pepega/Documents/compil/lexer/LexerApp/obj/Debug/net9.0/ref/LexerApp.dll

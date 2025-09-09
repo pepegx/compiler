@@ -1,0 +1,10 @@
+class ArrTest is
+    method squareAll(a: Array[Integer]) is
+        var i : Integer(1)
+        while i.LessEqual(a.Length) loop
+            var v : a.get(i)
+            a.set(i, v.Mult(v))
+            i := i.Plus(1)
+        end
+    end
+end

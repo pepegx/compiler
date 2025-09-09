@@ -1,0 +1,3 @@
+class A is
+    this() is end
+end

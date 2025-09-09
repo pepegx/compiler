@@ -1,0 +1,25 @@
+class Example extends Base is
+    var count : Integer(0)
+
+    method Increment(x: Integer) : Integer is
+        var temp : Integer(x.Plus(1))
+        if temp.Greater(count) then
+            count := temp
+        else
+            count := count.Plus(1)
+        end
+        return count
+    end
+
+    method IsEven() : Boolean =>
+        count.Rem(2).Equal(0)
+
+    this(p: Integer) is
+        count := p
+    end
+end
+
+var obj : Example(5)
+while obj.Less(10) loop
+    obj.Increment(1)
+end

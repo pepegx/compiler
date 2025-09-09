@@ -1,0 +1,7 @@
+class Bad is
+    method f is
+        while Integer(10) loop   // ошибка: условие не Boolean
+            var x : Integer(1)
+        end
+    end
+end

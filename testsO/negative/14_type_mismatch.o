@@ -1,0 +1,6 @@
+class Bad is
+    var x : Integer(5)
+    method f is
+        x := Boolean(true)   // type mismatch
+    end
+end

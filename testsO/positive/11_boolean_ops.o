@@ -1,0 +1,7 @@
+class BoolTest is
+    method test : Boolean is
+        var b1 : Boolean(true)
+        var b2 : Boolean(false)
+        return b1.And(b2.Not)
+    end
+end

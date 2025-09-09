@@ -1,0 +1,11 @@
+class Loop is
+    method sum(n: Integer) : Integer is
+        var i : Integer(1)
+        var s : Integer(0)
+        while i.LessEqual(n) loop
+            s := s.Plus(i)
+            i := i.Plus(1)
+        end
+        return s
+    end
+end

@@ -1,0 +1,9 @@
+class Cond is
+    method abs(x: Integer) : Integer is
+        if x.Less(Integer(0)) then
+            return x.UnaryMinus
+        else
+            return x
+        end
+    end
+end

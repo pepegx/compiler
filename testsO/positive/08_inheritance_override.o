@@ -1,0 +1,7 @@
+class A is
+    method f : Integer => Integer(1)
+end
+
+class B extends A is
+    method f : Integer => Integer(2)
+end

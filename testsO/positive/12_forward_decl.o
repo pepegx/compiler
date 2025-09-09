@@ -1,0 +1,5 @@
+class Fwd is
+    method a : Integer
+    method b : Integer => this.a
+    method a : Integer => Integer(42)
+end
