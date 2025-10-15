@@ -18,8 +18,3 @@ class Example extends Base is
         count := p
     end
 end
-
-var obj : Example(5)
-while obj.Less(10) loop
-    obj.Increment(1)
-end
