@@ -1,0 +1,87 @@
+class Base is
+    method id(x: Integer) : Integer
+    method ping
+end
+
+class MathUtil is
+    method Twice(x: Integer) : Integer => x.Plus(x)
+    method Max(a: Integer, b: Integer) : Integer is
+        if a.Greater(b) then
+            return a
+        else
+            return b
+        end
+    end
+end
+
+class Pair is
+    var a : Integer(0)
+    var b : Integer(0)
+    this(x: Integer, y: Integer) is
+        a := x
+        b := y
+    end
+    method Sum : Integer => a.Plus(b)
+end
+
+class Counter extends Base is
+    var count : Integer(0)
+
+    this() is
+        count := count
+    end
+
+    method Inc() is
+        count := count.Plus(1)
+    end
+
+    method Add(n: Integer) is
+        var i : Integer(0)
+        while i.Less(n) loop
+            count := count.Plus(1)
+            i := i.Plus(1)
+        end
+    end
+
+    method Value : Integer => count
+    method id(x: Integer) : Integer => x
+    method ping is
+        return
+    end
+end
+
+class ArrayClient is
+    method Sum(a: Array[Integer]) : Integer is
+        var i : Integer(1)
+        var s : Integer(0)
+        while i.LessEqual(a.Length) loop
+            var v : a.get(i)
+            s := s.Plus(v)
+            i := i.Plus(1)
+        end
+        return s
+    end
+end
+
+class Misc is
+    var pi : 3.14
+    method AlwaysTrue : Boolean => true
+    method UseThis : Integer => this.Helper()
+    method Helper : Integer => 42
+    method AcceptPair(p: Pair[Integer,Integer]) is
+        return
+    end
+end
+
+class App is
+    this() is
+        var cnt : Counter()
+        cnt.Inc()
+        cnt.Add(3)
+        var res : MathUtil().Max(cnt.Value(), 10)
+        Pair(1,2).Sum()
+        if cnt.Value().Greater(5) then
+            cnt.Inc()
+        end
+    end
+end
