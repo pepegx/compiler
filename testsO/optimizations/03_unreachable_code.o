@@ -1,0 +1,12 @@
+class TestOpt3 is
+    var x : Integer(0)
+    
+    method test() : Integer is
+        var y : Integer(5)
+        return y
+        
+        x := Integer(10)
+        y := Integer(20)
+        x := y
+    end
+end

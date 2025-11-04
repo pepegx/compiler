@@ -1,0 +1,21 @@
+class TestOptAll is
+    var usedField : Integer(42)
+    var unusedField : Integer(999)
+    
+    method testAll() : Boolean is
+        var result : Boolean(true)
+        var unused : Integer(0)
+        
+        if true then
+            return result
+        else
+            while false loop
+                unused := Integer(5)
+            end
+            return Boolean(false)
+        end
+        
+        result := Boolean(false)
+        unusedField := Integer(100)
+    end
+end

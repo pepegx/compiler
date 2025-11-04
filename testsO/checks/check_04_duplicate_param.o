@@ -1,0 +1,4 @@
+class Test is
+    method foo(a : Integer, a : Integer) is
+    end
+end

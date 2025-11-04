@@ -1,0 +1,11 @@
+
+class TestUnused extends Object is
+    var unusedVar : Integer(42)
+    var usedVar : Integer(10)
+    
+    method test() is
+        var localUnused : Integer(5)
+        var localUsed : Integer(3)
+        usedVar := localUsed
+    end
+end

@@ -27,32 +27,33 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\zhidk\\.nuget\\packages\\": {}
+    "/Users/pepega/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\zhidk\\Downloads\\compiler\\compiler\\syntaxer\\SyntaxerApp\\SyntaxerApp.csproj",
+      "projectUniqueName": "/Users/pepega/Documents/compiler/syntaxer/SyntaxerApp/SyntaxerApp.csproj",
       "projectName": "SyntaxerApp",
-      "projectPath": "C:\\Users\\zhidk\\Downloads\\compiler\\compiler\\syntaxer\\SyntaxerApp\\SyntaxerApp.csproj",
-      "packagesPath": "C:\\Users\\zhidk\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\zhidk\\Downloads\\compiler\\compiler\\syntaxer\\SyntaxerApp\\obj\\",
+      "projectPath": "/Users/pepega/Documents/compiler/syntaxer/SyntaxerApp/SyntaxerApp.csproj",
+      "packagesPath": "/Users/pepega/.nuget/packages/",
+      "outputPath": "/Users/pepega/Documents/compiler/syntaxer/SyntaxerApp/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\zhidk\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/Users/pepega/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "/opt/homebrew/Cellar/dotnet/9.0.8/libexec/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\zhidk\\Downloads\\compiler\\compiler\\lexer\\LexerApp\\LexerApp.csproj": {
-              "projectPath": "C:\\Users\\zhidk\\Downloads\\compiler\\compiler\\lexer\\LexerApp\\LexerApp.csproj"
+            "/Users/pepega/Documents/compiler/lexer/LexerApp/LexerApp.csproj": {
+              "projectPath": "/Users/pepega/Documents/compiler/lexer/LexerApp/LexerApp.csproj"
             }
           }
         }
@@ -67,7 +68,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net9.0": {
@@ -88,7 +89,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/9.0.8/libexec/sdk/9.0.109/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

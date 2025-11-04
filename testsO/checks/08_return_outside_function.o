@@ -1,0 +1,4 @@
+class Test is
+    var x : Integer(5)
+    return x
+end

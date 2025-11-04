@@ -1,0 +1,12 @@
+class DemoOptimizations is
+    var usedMember : Integer(100)
+    var unusedMember : Integer(999)
+    
+    method test() : Integer is
+        var usedLocal : Integer(1)
+        var unusedLocal : Integer(2)
+        
+        usedMember := usedLocal
+        return usedMember
+    end
+end

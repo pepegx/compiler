@@ -1,0 +1,5 @@
+class Test is
+    method compute() : Integer is
+        return unknownVar
+    end
+end

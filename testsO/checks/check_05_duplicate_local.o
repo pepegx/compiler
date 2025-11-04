@@ -1,0 +1,6 @@
+class Test is
+    method foo() is
+        var x : Integer(1)
+        var x : Integer(2)
+    end
+end

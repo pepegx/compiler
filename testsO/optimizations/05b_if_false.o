@@ -1,0 +1,9 @@
+class TestOpt5B is
+    method getValue() : Integer is
+        if false then
+            return Integer(10)
+        else
+            return Integer(30)
+        end
+    end
+end

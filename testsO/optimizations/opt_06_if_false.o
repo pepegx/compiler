@@ -1,0 +1,29 @@
+class TestIfFalse is
+    method alwaysFalse() : Integer is
+        if false then
+            return Integer(10)
+        else
+            return Integer(30)
+        end
+    end
+    
+    method noElse() is
+        var x : Integer(1)
+        if false then
+            x := Integer(999)
+        end
+        x := Integer(5)
+    end
+    
+    method nestedFalse() : Boolean is
+        if false then
+            return Boolean(true)
+        else
+            if false then
+                return Boolean(false)
+            else
+                return Boolean(true)
+            end
+        end
+    end
+end

@@ -1,0 +1,8 @@
+class TestUnusedMember is
+    var used : Integer(10)
+    var unused1 : Integer(20)
+    var unused2 : Integer(30)
+    var alsoUnused : Boolean(false)
+    
+    method getValue : Integer => used
+end

@@ -1,0 +1,7 @@
+class TestOpt1 is
+    var usedField : Integer(100)
+    var unusedField1 : Integer(111)
+    var unusedField2 : Integer(222)
+    
+    method getValue : Integer => usedField
+end

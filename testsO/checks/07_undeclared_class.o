@@ -1,0 +1,6 @@
+class Test is
+    method test() is
+        var obj : UndeclaredClass
+        obj := new UndeclaredClass
+    end
+end

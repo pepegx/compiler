@@ -1,0 +1,56 @@
+class OptimizationDemo extends Object is
+    
+    var unusedField : Integer(999)
+    var usedField : Integer(42)
+    
+    method testUnusedLocals() is
+        var used : Integer(1)
+        var unused1 : Integer(2)
+        var unused2 : Boolean(false)
+        usedField := used
+    end
+    
+    method testConstantIfTrue() : Integer is
+        if true then
+            return Integer(10)
+        else
+            return Integer(20)
+        end
+    end
+    
+    method testConstantIfFalse() : Integer is
+        if false then
+            return Integer(10)
+        else
+            return Integer(30)
+        end
+    end
+    
+    method testUnreachableCode() : Integer is
+        var x : Integer(5)
+        return x
+        x := Integer(10)
+        usedField := Integer(999)
+    end
+    
+    method testWhileFalse() is
+        while false loop
+            usedField := Integer(100)
+        end
+        usedField := Integer(1)
+    end
+    
+    method testCombined() : Boolean is
+        var unused : Integer(0)
+        var result : Boolean(true)
+        if true then
+            return result
+        else
+            while false loop
+                unused := Integer(5)
+            end
+            return Boolean(false)
+        end
+        result := Boolean(false)
+    end
+end

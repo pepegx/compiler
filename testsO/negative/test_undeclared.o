@@ -1,0 +1,8 @@
+
+class TestUndeclared extends Object is
+    var x : Integer(5)
+    
+    method test() is
+        y := x
+    end
+end

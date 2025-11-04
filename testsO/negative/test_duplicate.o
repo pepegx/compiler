@@ -1,0 +1,5 @@
+
+class TestDuplicate extends Object is
+    var x : Integer(5)
+    var x : Integer(10)
+end

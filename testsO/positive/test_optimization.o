@@ -1,0 +1,15 @@
+
+class Example extends Object is
+    var x : Integer(5)
+    var y : Integer(10)
+    
+    method calculate(a : Integer, b : Integer) : Integer is
+        var result : Integer(0)
+        result := a
+        return result
+    end
+    
+    method testSimple() is
+        x := Integer(1)
+    end
+end

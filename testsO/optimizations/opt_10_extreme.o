@@ -1,0 +1,80 @@
+class MultipleOptimizations is
+    var used1 : Integer(1)
+    var used2 : Integer(2)
+    var unused1 : Integer(10)
+    var unused2 : Integer(20)
+    var unused3 : Integer(30)
+    
+    method test1() : Integer is
+        var local1 : Integer(0)
+        var local2 : Integer(0)
+        var unusedLocal1 : Integer(100)
+        var unusedLocal2 : Integer(200)
+        
+        if false then
+            local1 := Integer(5)
+        else
+            local1 := used1
+        end
+        
+        if true then
+            local2 := used2
+        else
+            local2 := Integer(999)
+        end
+        
+        while false loop
+            local1 := Integer(777)
+        end
+        
+        return local1.Plus(local2)
+        
+        used1 := Integer(888)
+        used2 := Integer(888)
+    end
+    
+    method test2() is
+        var x : Integer(0)
+        var y : Integer(0)
+        var z : Integer(0)
+        var unused : Integer(0)
+        
+        if true then
+            if false then
+                x := Integer(1)
+            else
+                x := Integer(2)
+            end
+        else
+            x := Integer(3)
+        end
+        
+        used1 := x
+        
+        while false loop
+            while false loop
+                y := Integer(999)
+            end
+        end
+    end
+    
+    method test3() : Boolean is
+        var result : Boolean(true)
+        var temp1 : Integer(1)
+        var temp2 : Integer(2)
+        var temp3 : Integer(3)
+        
+        if true then
+            return result
+        else
+            if false then
+                return Boolean(false)
+            else
+                return Boolean(true)
+            end
+        end
+        
+        result := Boolean(false)
+        used2 := Integer(999)
+    end
+end

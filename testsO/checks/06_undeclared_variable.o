@@ -1,0 +1,5 @@
+class Test is
+    method test() is
+        x := Integer(5)
+    end
+end

@@ -1,0 +1,41 @@
+class MathUtils is
+    method factorial(n : Integer) : Integer is
+        var result : Integer(1)
+        var counter : Integer(1)
+        
+        while counter.LessEqual(n) loop
+            result := result.Times(counter)
+            counter := counter.Plus(Integer(1))
+        end
+        
+        return result
+    end
+    
+    method fibonacci(n : Integer) : Integer is
+        var a : Integer(0)
+        var b : Integer(1)
+        var temp : Integer(0)
+        var i : Integer(0)
+        
+        while i.Less(n) loop
+            temp := a.Plus(b)
+            a := b
+            b := temp
+            i := i.Plus(Integer(1))
+        end
+        
+        return a
+    end
+    
+    method power(base : Integer, exp : Integer) : Integer is
+        var result : Integer(1)
+        var counter : Integer(0)
+        
+        while counter.Less(exp) loop
+            result := result.Times(base)
+            counter := counter.Plus(Integer(1))
+        end
+        
+        return result
+    end
+end

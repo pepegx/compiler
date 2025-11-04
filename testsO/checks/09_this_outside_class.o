@@ -1,0 +1,5 @@
+class Test is
+end
+
+var x : Test
+x := this

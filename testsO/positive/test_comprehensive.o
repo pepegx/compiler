@@ -1,0 +1,24 @@
+
+class Demo extends Object is
+    var usedField : Integer(100)
+    var unusedField : Integer(200)
+    
+    method demo(param : Integer) : Integer is
+        var usedLocal : Integer(1)
+        var unusedLocal : Integer(2)
+        usedField := usedLocal
+        return param
+    end
+    
+    method alwaysReturns() : Integer is
+        return Integer(42)
+    end
+end
+
+class AnotherClass extends Demo is
+    var x : Integer(5)
+    
+    method test() is
+        x := Integer(10)
+    end
+end

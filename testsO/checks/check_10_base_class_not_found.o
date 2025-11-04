@@ -1,0 +1,4 @@
+class Child extends NonExistentParent is
+    method test() is
+    end
+end

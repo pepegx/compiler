@@ -1,0 +1,18 @@
+class TestUnreachable is
+    method earlyReturn() : Integer is
+        var x : Integer(10)
+        return x
+        x := Integer(20)
+        x := x.Plus(Integer(5))
+        return x
+    end
+    
+    method multipleReturns() : Boolean is
+        if true then
+            return Boolean(true)
+            return Boolean(false)
+        else
+            return Boolean(false)
+        end
+    end
+end

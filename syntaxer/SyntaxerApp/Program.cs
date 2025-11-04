@@ -4,6 +4,7 @@ using O_Lexer;
 using O_Parser;
 using O_Parser.AST;
 using O_Parser.Utilities;
+using O_Parser.Analyzer;
 
 namespace O_Parser
 {
@@ -13,7 +14,7 @@ namespace O_Parser
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Usage: dotnet run -- <sourcefile.o>");
+                Console.WriteLine("Usage: dotnet run -- <sourcefile.o> [--no-optimize]");
                 return;
             }
 
@@ -22,6 +23,12 @@ namespace O_Parser
             {
                 Console.WriteLine($"Error: file '{filePath}' not found.");
                 return;
+            }
+
+            bool enableOptimizations = true;
+            if (args.Length > 1 && args[1] == "--no-optimize")
+            {
+                enableOptimizations = false;
             }
 
             string code = File.ReadAllText(filePath);
@@ -33,12 +40,25 @@ namespace O_Parser
             try
             {
                 var ast = parser.ParseProgram();
-                Console.WriteLine($"Parsed OK. Classes: {ast.Classes.Count}\n");
+                Console.WriteLine($"✓ Parsing successful. Classes: {ast.Classes.Count}\n");
+                
+                // Run semantic analysis
+                var analyzer = new SemanticAnalyzer();
+                ast = analyzer.Analyze(ast, enableOptimizations);
+                
+                // Print the AST (potentially optimized)
+                Console.WriteLine("=== Final AST ===");
                 AstTreePrinter.Print(ast);
             }
             catch (SyntaxError ex)
             {
-                Console.WriteLine("Syntax error: " + ex.Message);
+                Console.WriteLine("✗ Syntax error: " + ex.Message);
+                Environment.Exit(1);
+            }
+            catch (SemanticError ex)
+            {
+                Console.WriteLine("✗ Semantic error: " + ex.Message);
+                Environment.Exit(1);
             }
         }
     }

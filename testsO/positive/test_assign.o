@@ -1,0 +1,8 @@
+
+class Test is
+    var x : Integer(5)
+    
+    method test() is
+        x := Integer(1)
+    end
+end

@@ -1,0 +1,8 @@
+class Test is
+    method foo() is
+    end
+    
+    method bar() is
+        foo := Integer(5)
+    end
+end

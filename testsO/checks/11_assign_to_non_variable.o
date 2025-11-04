@@ -1,0 +1,7 @@
+class Test is
+    method foo() : Integer => Integer(5)
+    
+    method test() is
+        foo := Integer(10)
+    end
+end

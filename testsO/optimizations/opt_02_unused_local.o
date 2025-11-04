@@ -1,0 +1,11 @@
+class TestUnusedLocal is
+    method calculate() : Integer is
+        var result : Integer(0)
+        var temp1 : Integer(5)
+        var temp2 : Integer(10)
+        var notUsed : Boolean(true)
+        
+        result := Integer(42)
+        return result
+    end
+end
