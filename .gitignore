@@ -1,0 +1,18 @@
+# Documentation (generated)
+docs/
+
+# Build artifacts
+**/bin/
+**/obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+
+# macOS
+.DS_Store

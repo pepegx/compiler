@@ -1,0 +1,6 @@
+class D is
+    method f() is end
+    method f() is end
+end
+
+

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SyntaxerApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eee5c1134838b90c8e3e1289988acd490f38ee38")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+349f2a58f07aca668b32465b63007b2f71dee9a2")]
 [assembly: System.Reflection.AssemblyProductAttribute("SyntaxerApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SyntaxerApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
