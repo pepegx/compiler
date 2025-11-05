@@ -1,6 +1,0 @@
-class Test is
-    method test() is
-        var x : Integer(0)
-        var x : Integer(1)
-    end
-end

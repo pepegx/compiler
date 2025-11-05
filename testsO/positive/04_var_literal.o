@@ -1,3 +1,0 @@
-class Test is
-    var x : Integer(5)
-end

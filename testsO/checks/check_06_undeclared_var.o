@@ -1,5 +1,0 @@
-class Test is
-    method foo() is
-        x := Integer(5)
-    end
-end

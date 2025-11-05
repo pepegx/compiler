@@ -1,7 +1,0 @@
-class C is
-    method m() is
-        y := Integer(1)
-    end
-end
-
-

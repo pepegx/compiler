@@ -1,3 +1,0 @@
-class Test is
-    method getX : Integer => Integer(10)
-end

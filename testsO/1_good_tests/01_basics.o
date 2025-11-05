@@ -1,0 +1,17 @@
+class Empty is
+end
+
+class Basic is
+    var x : Integer(5)
+    var y : Integer(10)
+    
+    this(a : Integer) is
+        x := a
+    end
+    
+    method getX : Integer => x
+    
+    method getSum : Integer is
+        return x.Plus(y)
+    end
+end

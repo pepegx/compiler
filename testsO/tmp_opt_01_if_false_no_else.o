@@ -1,9 +1,0 @@
-class E is
-    method g() is
-        if false then
-            var a : Integer(1)
-        end
-    end
-end
-
-

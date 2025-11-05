@@ -1,6 +1,0 @@
-class TestUnusedField is
-    var usedField : Integer(10)
-    var unusedField : Integer(999)
-    
-    method getValue : Integer => usedField
-end

@@ -1,0 +1,27 @@
+class ControlFlow is
+    method sum(n: Integer) : Integer is
+        var i : Integer(1)
+        var s : Integer(0)
+        while i.LessEqual(n) loop
+            s := s.Plus(i)
+            i := i.Plus(1)
+        end
+        return s
+    end
+    
+    method abs(x: Integer) : Integer is
+        if x.Less(Integer(0)) then
+            return x.UnaryMinus
+        else
+            return x
+        end
+    end
+    
+    method max(a: Integer, b: Integer) : Integer is
+        var result : a
+        if b.Greater(a) then
+            result := b
+        end
+        return result
+    end
+end

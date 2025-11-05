@@ -1,4 +1,0 @@
-
-class TestClass extends UndeclaredBase is
-    var x : Integer(5)
-end

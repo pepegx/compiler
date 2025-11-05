@@ -1,6 +1,0 @@
-class Test is
-    method foo() is
-        var obj : UnknownClass(0)
-        obj := new UnknownClass()
-    end
-end

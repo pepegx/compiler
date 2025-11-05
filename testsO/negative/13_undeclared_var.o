@@ -1,5 +1,0 @@
-class Bad is
-    method f : Integer is
-        return y
-    end
-end

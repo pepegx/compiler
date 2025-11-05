@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LexerApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+349f2a58f07aca668b32465b63007b2f71dee9a2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6b001c4ed238d4aec15bce1a63ac1bf04d7f5dff")]
 [assembly: System.Reflection.AssemblyProductAttribute("LexerApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LexerApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

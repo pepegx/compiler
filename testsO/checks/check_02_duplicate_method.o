@@ -1,7 +1,0 @@
-class Test is
-    method foo() is
-    end
-    
-    method foo() is
-    end
-end

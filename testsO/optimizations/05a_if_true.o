@@ -1,9 +1,0 @@
-class TestOpt5A is
-    method getValue() : Integer is
-        if true then
-            return Integer(10)
-        else
-            return Integer(20)
-        end
-    end
-end

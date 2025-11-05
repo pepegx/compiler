@@ -1,4 +1,0 @@
-class Test is
-    method foo(x : Integer, x : Integer) is
-    end
-end
