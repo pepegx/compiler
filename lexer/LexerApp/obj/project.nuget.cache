@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "/U0fyn1NiMo=",
+  "dgSpecHash": "KsrzYz9497E=",
   "success": true,
-  "projectFilePath": "/Users/pepega/Documents/compiler/lexer/LexerApp/LexerApp.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\zhidk\\Downloads\\compiler\\compiler\\lexer\\LexerApp\\LexerApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\zhidk\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net48\\1.0.3\\microsoft.netframework.referenceassemblies.net48.1.0.3.nupkg.sha512"
+  ],
   "logs": []
 }

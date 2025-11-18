@@ -1,31 +1,36 @@
 {
   "format": 1,
   "restore": {
-    "/Users/pepega/Documents/compiler/lexer/LexerApp/LexerApp.csproj": {}
+    "C:\\Users\\zhidk\\Downloads\\compiler\\compiler\\lexer\\LexerApp\\LexerApp.csproj": {}
   },
   "projects": {
-    "/Users/pepega/Documents/compiler/lexer/LexerApp/LexerApp.csproj": {
+    "C:\\Users\\zhidk\\Downloads\\compiler\\compiler\\lexer\\LexerApp\\LexerApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/pepega/Documents/compiler/lexer/LexerApp/LexerApp.csproj",
+        "projectUniqueName": "C:\\Users\\zhidk\\Downloads\\compiler\\compiler\\lexer\\LexerApp\\LexerApp.csproj",
         "projectName": "LexerApp",
-        "projectPath": "/Users/pepega/Documents/compiler/lexer/LexerApp/LexerApp.csproj",
-        "packagesPath": "/Users/pepega/.nuget/packages/",
-        "outputPath": "/Users/pepega/Documents/compiler/lexer/LexerApp/obj/",
+        "projectPath": "C:\\Users\\zhidk\\Downloads\\compiler\\compiler\\lexer\\LexerApp\\LexerApp.csproj",
+        "packagesPath": "C:\\Users\\zhidk\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\zhidk\\Downloads\\compiler\\compiler\\lexer\\LexerApp\\obj\\",
         "projectStyle": "PackageReference",
+        "crossTargeting": true,
         "configFilePaths": [
-          "/Users/pepega/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\zhidk\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
+          "net48",
           "net9.0"
         ],
         "sources": {
-          "/opt/homebrew/Cellar/dotnet/9.0.8/libexec/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
+            "projectReferences": {}
+          },
+          "net48": {
+            "targetAlias": "net48",
             "projectReferences": {}
           }
         },
@@ -39,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net9.0": {
@@ -60,7 +65,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/9.0.8/libexec/sdk/9.0.109/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "targetAlias": "net48",
+          "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies.net48": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305\\RuntimeIdentifierGraph.json"
         }
       }
     }

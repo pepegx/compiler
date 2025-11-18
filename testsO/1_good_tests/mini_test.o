@@ -1,0 +1,3 @@
+class MainClass is
+    method main : Integer => Integer(42)
+end

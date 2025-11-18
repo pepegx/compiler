@@ -1,13 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net9.0;net48</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\lexer\LexerApp\LexerApp.csproj" />
+    <ProjectReference Include="..\..\backend\EmitBackend\EmitBackend.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+  <!-- Поллифилы Index/Range собирать только под net48 -->
+  <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
+    <Compile Remove="Compat\IndexRange.Net48.cs" />
+  </ItemGroup>
 
+  <!-- Фоллбэк reference assemblies для .NET Framework 4.8 -->
+  <ItemGroup Condition="'$(TargetFramework)'=='net48'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="All" />
+  </ItemGroup>
 </Project>
