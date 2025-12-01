@@ -397,7 +397,77 @@ namespace EmitBackend.IL
 
         private static void EmitMemberAccess(BuildContext context, MemberAccessExpr memberAccess)
         {
+            // Определяем тип target
+            Type targetType;
+            if (memberAccess.Target is IdentifierExpr targetId)
+            {
+                targetType = InferIdentifierType(targetId, context);
+            }
+            else
+            {
+                targetType = InferType(memberAccess.Target, context);
+            }
+
+            // Обработка Array.Length (без скобок)
+            if ((targetType == typeof(object[]) || IsArrayRealType(memberAccess.Target, context)) && memberAccess.Member == "Length")
+            {
+                EmitExpression(context, memberAccess.Target);
+                context.IL.Emit(OpCodes.Ldlen);
+                context.IL.Emit(OpCodes.Conv_I4);
+                return;
+            }
+
             EmitExpression(context, memberAccess.Target);
+
+            // Обработка builtin методов без аргументов (как свойства)
+            if (targetType == typeof(int))
+            {
+                if (memberAccess.Member == "UnaryMinus")
+                {
+                    context.IL.Emit(OpCodes.Neg);
+                    return;
+                }
+                else if (memberAccess.Member == "toReal")
+                {
+                    context.IL.Emit(OpCodes.Conv_R8);
+                    return;
+                }
+                else if (memberAccess.Member == "toBoolean")
+                {
+                    // toBoolean: 0 -> false, non-zero -> true
+                    context.IL.Emit(OpCodes.Ldc_I4_0);
+                    context.IL.Emit(OpCodes.Cgt_Un);
+                    return;
+                }
+            }
+            else if (targetType == typeof(double))
+            {
+                if (memberAccess.Member == "UnaryMinus")
+                {
+                    context.IL.Emit(OpCodes.Neg);
+                    return;
+                }
+                else if (memberAccess.Member == "toInteger")
+                {
+                    context.IL.Emit(OpCodes.Conv_I4);
+                    return;
+                }
+            }
+            else if (targetType == typeof(bool))
+            {
+                if (memberAccess.Member == "Not")
+                {
+                    context.IL.Emit(OpCodes.Ldc_I4_0);
+                    context.IL.Emit(OpCodes.Ceq);
+                    return;
+                }
+                else if (memberAccess.Member == "toInteger")
+                {
+                    // bool уже int32 в CLR
+                    return;
+                }
+            }
+            // Для других случаев (доступ к полю пользовательского класса) - target уже на стеке
         }
 
         private static void EmitCall(BuildContext context, CallExpr call)
@@ -1062,9 +1132,12 @@ namespace EmitBackend.IL
                 case "Or":
                     context.IL.Emit(OpCodes.Or);
                     break;
-                case "Not":
-                    context.IL.Emit(OpCodes.Ldc_I4_1);
+                case "Xor":
                     context.IL.Emit(OpCodes.Xor);
+                    break;
+                case "Not":
+                    context.IL.Emit(OpCodes.Ldc_I4_0);
+                    context.IL.Emit(OpCodes.Ceq);
                     break;
             }
         }
