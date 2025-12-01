@@ -619,6 +619,44 @@ namespace O_Parser.Analyzer
             }
         }
 
+        private void ValidateType(string typeName)
+        {
+            // Extract base type name (e.g., "Array" from "Array[Integer]" or "Array" from "Array[Array[Integer]]")
+            string baseTypeName = typeName;
+            string? elementTypeName = null;
+            
+            if (typeName.Contains("[") && typeName.Contains("]"))
+            {
+                int bracketStart = typeName.IndexOf('[');
+                int bracketEnd = typeName.LastIndexOf(']');
+                baseTypeName = typeName.Substring(0, bracketStart);
+                elementTypeName = typeName.Substring(bracketStart + 1, bracketEnd - bracketStart - 1);
+            }
+            
+            // Check if base type exists
+            var classSymbol = _symbolTable.Resolve(baseTypeName);
+            if (classSymbol == null)
+            {
+                throw new SemanticError($"Type '{baseTypeName}' does not exist. Cannot create {typeName}.");
+            }
+            
+            // For generic types (Array/List), recursively validate element type
+            if (elementTypeName != null && (baseTypeName == "Array" || baseTypeName == "List"))
+            {
+                // Recursively validate nested types (e.g., Array[Integer] or Array[Array[Integer]])
+                ValidateType(elementTypeName);
+            }
+            else if (elementTypeName != null)
+            {
+                // For non-generic types with brackets, check if element type exists
+                var elementSymbol = _symbolTable.Resolve(elementTypeName);
+                if (elementSymbol == null)
+                {
+                    throw new SemanticError($"Type '{elementTypeName}' does not exist. Cannot create {typeName}.");
+                }
+            }
+        }
+
         private void CheckExpression(ExprNode expr)
         {
             switch (expr)
@@ -672,27 +710,15 @@ namespace O_Parser.Analyzer
                     break;
 
                 case NewExpr newExpr:
-                    // CRITICAL: Handle generic types like Array[Integer]
-                    // Extract base type name (e.g., "Array" from "Array[Integer]")
-                    string baseTypeName = newExpr.ClassName;
-                    string? elementTypeName = null;
+                    // CRITICAL: Handle generic types like Array[Integer] or Array[Array[Integer]]
+                    // Recursively validate nested generic types
+                    ValidateType(newExpr.ClassName);
                     
+                    // Extract base type name for symbol resolution
+                    string baseTypeName = newExpr.ClassName;
                     if (newExpr.ClassName.Contains("[") && newExpr.ClassName.Contains("]"))
                     {
-                        int bracketStart = newExpr.ClassName.IndexOf('[');
-                        int bracketEnd = newExpr.ClassName.LastIndexOf(']');
-                        baseTypeName = newExpr.ClassName.Substring(0, bracketStart);
-                        elementTypeName = newExpr.ClassName.Substring(bracketStart + 1, bracketEnd - bracketStart - 1);
-                    }
-                    
-                    // Check if element type exists for generic types (Array/List)
-                    if (elementTypeName != null && (baseTypeName == "Array" || baseTypeName == "List"))
-                    {
-                        var elementSymbol = _symbolTable.Resolve(elementTypeName);
-                        if (elementSymbol == null)
-                        {
-                            throw new SemanticError($"Type '{elementTypeName}' does not exist. Cannot create {baseTypeName}[{elementTypeName}].");
-                        }
+                        baseTypeName = newExpr.ClassName.Substring(0, newExpr.ClassName.IndexOf('['));
                     }
                     
                     var classSymbol = _symbolTable.Resolve(baseTypeName);
