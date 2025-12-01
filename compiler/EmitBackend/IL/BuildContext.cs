@@ -17,6 +17,7 @@ namespace EmitBackend.IL
         public Dictionary<MethodBuilder, List<Type>> MethodParamTypes { get; }
         public Dictionary<string, List<ConstructorBuilder>> ClassConstructors { get; }
         public Dictionary<ConstructorBuilder, List<Type>> ConstructorParamTypes { get; }
+        public Dictionary<string, Dictionary<string, FieldBuilder>> ClassFields { get; }
 
         private readonly Dictionary<string, LocalBuilder> _locals = new Dictionary<string, LocalBuilder>();
         private readonly Dictionary<string, Type> _localRealTypes = new Dictionary<string, Type>();
@@ -35,7 +36,8 @@ namespace EmitBackend.IL
             Dictionary<string, Dictionary<string, List<MethodBuilder>>> classMethods,
             Dictionary<MethodBuilder, List<Type>> methodParamTypes,
             Dictionary<string, List<ConstructorBuilder>> classConstructors,
-            Dictionary<ConstructorBuilder, List<Type>> constructorParamTypes)
+            Dictionary<ConstructorBuilder, List<Type>> constructorParamTypes,
+            Dictionary<string, Dictionary<string, FieldBuilder>> classFields)
         {
             IL = il;
             CurrentType = currentType;
@@ -46,6 +48,7 @@ namespace EmitBackend.IL
             MethodParamTypes = methodParamTypes;
             ClassConstructors = classConstructors;
             ConstructorParamTypes = constructorParamTypes;
+            ClassFields = classFields;
         }
 
         public void RegisterLocal(string name, LocalBuilder local, Type realType = null)
@@ -277,6 +280,37 @@ namespace EmitBackend.IL
                     }
                 }
             }
+            return null;
+        }
+
+        public FieldBuilder FindField(TypeBuilder typeBuilder, string fieldName)
+        {
+            // Ищем поле в ClassFields
+            if (ClassFields.TryGetValue(typeBuilder.Name, out var fields))
+            {
+                if (fields.TryGetValue(fieldName, out var field))
+                {
+                    return field;
+                }
+            }
+            
+            // Ищем в базовых классах
+            var baseType = typeBuilder.BaseType;
+            while (baseType != null && baseType != typeof(object))
+            {
+                if (baseType is TypeBuilder baseTypeBuilder)
+                {
+                    if (ClassFields.TryGetValue(baseTypeBuilder.Name, out var baseFields))
+                    {
+                        if (baseFields.TryGetValue(fieldName, out var baseField))
+                        {
+                            return baseField;
+                        }
+                    }
+                }
+                baseType = baseType.BaseType;
+            }
+            
             return null;
         }
     }

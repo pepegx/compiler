@@ -230,12 +230,16 @@ namespace O_Parser
 
                 if (Check(TokenType.Var))
                 {
-                    block.Locals.Add(ParseVarDecl());
+                    var varDecl = ParseVarDecl();
+                    block.Locals.Add(varDecl);
+                    block.Body.Add(varDecl);  // Сохраняем порядок
                 }
                 else if (Check(TokenType.While) || Check(TokenType.If) || Check(TokenType.Return))
                 {
                     // Valid statement starters
-                    block.Statements.Add(ParseStatement());
+                    var stmt = ParseStatement();
+                    block.Statements.Add(stmt);
+                    block.Body.Add(stmt);  // Сохраняем порядок
                 }
                 else if ((Check(TokenType.Identifier) && LA(1).Type == TokenType.Assign) ||
                          ((Check(TokenType.Loop) || Check(TokenType.While) || Check(TokenType.If) || 
@@ -246,7 +250,9 @@ namespace O_Parser
                           && LA(1).Type == TokenType.Assign))
                 {
                     // Assignment statement (identifier or keyword used as identifier)
-                    block.Statements.Add(ParseStatement());
+                    var stmt = ParseStatement();
+                    block.Statements.Add(stmt);
+                    block.Body.Add(stmt);  // Сохраняем порядок
                 }
                 else if (Check(TokenType.Identifier) || Check(TokenType.True) || Check(TokenType.False) ||
                          Check(TokenType.IntegerLiteral) || Check(TokenType.RealLiteral) || Check(TokenType.StringLiteral) || Check(TokenType.This) ||
@@ -258,7 +264,9 @@ namespace O_Parser
                     // Expression statement - parse as expression statement
                     // This matches M&m approach - ParseStatement() always parses expression at the end
                     // Also allow keywords as identifiers in expressions
-                    block.Statements.Add(ParseStatement());
+                    var stmt = ParseStatement();
+                    block.Statements.Add(stmt);
+                    block.Body.Add(stmt);  // Сохраняем порядок
                 }
                 else
                 {

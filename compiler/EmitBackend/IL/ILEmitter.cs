@@ -11,7 +11,7 @@ namespace EmitBackend.IL
     {
         public static void EmitBlock(BuildContext context, BlockNode block)
         {
-            // Регистрируем все локальные переменные
+            // Сначала объявляем все локальные переменные (для IL нужно объявить заранее)
             foreach (var local in block.Locals)
             {
                 var realType = InferType(local.Initializer, context);
@@ -57,20 +57,22 @@ namespace EmitBackend.IL
                 context.RegisterLocal(local.Name, localBuilder, realType);
             }
 
-            // Инициализируем локальные переменные
-            foreach (var local in block.Locals)
+            // Эмиссия тела блока с сохранением порядка (var и statements чередуются)
+            foreach (var item in block.Body)
             {
-                EmitExpression(context, local.Initializer);
-                if (context.TryGetLocal(local.Name, out var localBuilder))
+                if (item is VarDeclNode local)
                 {
-                    context.IL.Emit(OpCodes.Stloc, localBuilder);
+                    // Инициализация локальной переменной
+                    EmitExpression(context, local.Initializer);
+                    if (context.TryGetLocal(local.Name, out var localBuilder))
+                    {
+                        context.IL.Emit(OpCodes.Stloc, localBuilder);
+                    }
                 }
-            }
-
-            // Эмиссия statements
-            foreach (var stmt in block.Statements)
-            {
-                EmitStatement(context, stmt);
+                else if (item is StmtNode stmt)
+                {
+                    EmitStatement(context, stmt);
+                }
             }
         }
 
@@ -417,6 +419,64 @@ namespace EmitBackend.IL
                 return;
             }
 
+            // Обработка List.Length (без скобок)
+            if ((targetType == typeof(System.Collections.Generic.List<object>) || IsListRealType(memberAccess.Target, context)) && memberAccess.Member == "Length")
+            {
+                EmitExpression(context, memberAccess.Target);
+                var listType = typeof(System.Collections.Generic.List<object>);
+                var countProp = listType.GetProperty("Count");
+                context.IL.Emit(OpCodes.Callvirt, countProp.GetGetMethod());
+                return;
+            }
+
+            // Обработка List.head (без скобок) - возвращает первый элемент
+            if ((targetType == typeof(System.Collections.Generic.List<object>) || IsListRealType(memberAccess.Target, context)) && memberAccess.Member == "head")
+            {
+                EmitExpression(context, memberAccess.Target);
+                context.IL.Emit(OpCodes.Ldc_I4_0);  // индекс 0
+                var listType = typeof(System.Collections.Generic.List<object>);
+                var getItemMethod = listType.GetMethod("get_Item", new[] { typeof(int) });
+                context.IL.Emit(OpCodes.Callvirt, getItemMethod);
+                // Unbox если примитивный тип - нужно определить тип элемента
+                if (memberAccess.Target is IdentifierExpr listIdHead)
+                {
+                    Type elementType = null;
+                    if (context.TryGetArrayElementType(listIdHead.Name, out elementType) ||
+                        context.TryGetParameterRealType(listIdHead.Name, out elementType))
+                    {
+                        if (elementType == typeof(int))
+                        {
+                            context.IL.Emit(OpCodes.Unbox_Any, typeof(int));
+                        }
+                        else if (elementType == typeof(double))
+                        {
+                            context.IL.Emit(OpCodes.Unbox_Any, typeof(double));
+                        }
+                        else if (elementType == typeof(bool))
+                        {
+                            context.IL.Emit(OpCodes.Unbox_Any, typeof(bool));
+                        }
+                    }
+                }
+                return;
+            }
+
+            // Обработка List.tail (без скобок) - возвращает список без первого элемента
+            if ((targetType == typeof(System.Collections.Generic.List<object>) || IsListRealType(memberAccess.Target, context)) && memberAccess.Member == "tail")
+            {
+                EmitExpression(context, memberAccess.Target);  // список
+                context.IL.Emit(OpCodes.Ldc_I4_1);  // начальный индекс = 1
+                EmitExpression(context, memberAccess.Target);  // список (для Count)
+                var listType = typeof(System.Collections.Generic.List<object>);
+                var countProperty = listType.GetProperty("Count");
+                context.IL.Emit(OpCodes.Callvirt, countProperty.GetGetMethod());
+                context.IL.Emit(OpCodes.Ldc_I4_1);
+                context.IL.Emit(OpCodes.Sub);  // Count - 1
+                var getRangeMethod = listType.GetMethod("GetRange", new[] { typeof(int), typeof(int) });
+                context.IL.Emit(OpCodes.Callvirt, getRangeMethod);
+                return;
+            }
+
             EmitExpression(context, memberAccess.Target);
 
             // Обработка builtin методов без аргументов (как свойства)
@@ -466,6 +526,73 @@ namespace EmitBackend.IL
                     // bool уже int32 в CLR
                     return;
                 }
+            }
+            else if (targetType is TypeBuilder typeBuilder)
+            {
+                // Вызов метода без аргументов на пользовательском классе
+                // Например: e.getId (без скобок, эквивалентно e.getId())
+                var method = context.FindMethod(typeBuilder, memberAccess.Member, new List<Type>());
+                if (method != null)
+                {
+                    context.IL.Emit(OpCodes.Callvirt, method);
+                    return;
+                }
+                // Попробуем найти метод в базовом классе
+                var baseMethod = FindMethodInHierarchy(context, typeBuilder, memberAccess.Member, new List<Type>());
+                if (baseMethod != null)
+                {
+                    context.IL.Emit(OpCodes.Callvirt, baseMethod);
+                    return;
+                }
+                // Если метод не найден, это доступ к полю
+                // Ищем поле в текущем классе и базовых классах
+                var field = context.FindField(typeBuilder, memberAccess.Member);
+                if (field != null)
+                {
+                    context.IL.Emit(OpCodes.Ldfld, field);
+                    return;
+                }
+                // Если поле не найдено, target уже на стеке
+            }
+            else if (targetType == typeof(object))
+            {
+                // Для object (например, локальная переменная из массива) - проверяем реальный тип
+                Type realTargetType = null;
+                if (memberAccess.Target is IdentifierExpr targetIdExpr)
+                {
+                    if (context.TryGetLocalRealType(targetIdExpr.Name, out var localRealType))
+                    {
+                        realTargetType = localRealType;
+                    }
+                    else if (context.TryGetFieldRealType(targetIdExpr.Name, out var fieldRealType))
+                    {
+                        realTargetType = fieldRealType;
+                    }
+                }
+                
+                if (realTargetType is TypeBuilder realTypeBuilder)
+                {
+                    var method = context.FindMethod(realTypeBuilder, memberAccess.Member, new List<Type>());
+                    if (method != null)
+                    {
+                        context.IL.Emit(OpCodes.Callvirt, method);
+                        return;
+                    }
+                    var baseMethod = FindMethodInHierarchy(context, realTypeBuilder, memberAccess.Member, new List<Type>());
+                    if (baseMethod != null)
+                    {
+                        context.IL.Emit(OpCodes.Callvirt, baseMethod);
+                        return;
+                    }
+                    // Если метод не найден, это доступ к полю
+                    var field = context.FindField(realTypeBuilder, memberAccess.Member);
+                    if (field != null)
+                    {
+                        context.IL.Emit(OpCodes.Ldfld, field);
+                        return;
+                    }
+                }
+                // Если не нашли метод или поле, оставляем target на стеке
             }
             // Для других случаев (доступ к полю пользовательского класса) - target уже на стеке
         }
@@ -1193,14 +1320,119 @@ namespace EmitBackend.IL
             }
             if (expr is MemberAccessExpr memberAccess)
             {
-                // Для MemberAccessExpr нужно определить тип target'а
-                // Если target - это IdentifierExpr (поле/локальная переменная), используем InferIdentifierType
+                // Определяем тип target'а
+                Type targetType;
                 if (memberAccess.Target is IdentifierExpr targetId)
                 {
-                    return InferIdentifierType(targetId, context);
+                    targetType = InferIdentifierType(targetId, context);
                 }
-                // Иначе просто возвращаем тип target'а
-                return InferType(memberAccess.Target, context);
+                else
+                {
+                    targetType = InferType(memberAccess.Target, context);
+                }
+                
+                // Определяем тип результата на основе типа target и имени члена
+                if (targetType == typeof(object[]))
+                {
+                    if (memberAccess.Member == "Length")
+                    {
+                        return typeof(int);
+                    }
+                }
+                if (targetType == typeof(System.Collections.Generic.List<object>))
+                {
+                    if (memberAccess.Member == "Length" || memberAccess.Member == "Count")
+                    {
+                        return typeof(int);
+                    }
+                }
+                if (targetType == typeof(int))
+                {
+                    if (memberAccess.Member == "toReal")
+                    {
+                        return typeof(double);
+                    }
+                    if (memberAccess.Member == "toBoolean")
+                    {
+                        return typeof(bool);
+                    }
+                    // UnaryMinus возвращает int
+                    return typeof(int);
+                }
+                if (targetType == typeof(double))
+                {
+                    if (memberAccess.Member == "toInteger")
+                    {
+                        return typeof(int);
+                    }
+                    return typeof(double);
+                }
+                if (targetType == typeof(bool))
+                {
+                    if (memberAccess.Member == "toInteger")
+                    {
+                        return typeof(int);
+                    }
+                    return typeof(bool);
+                }
+                // Для пользовательских классов ищем тип возвращаемого значения метода
+                if (targetType is TypeBuilder typeBuilder)
+                {
+                    var method = context.FindMethod(typeBuilder, memberAccess.Member, new List<Type>());
+                    if (method != null)
+                    {
+                        return method.ReturnType;
+                    }
+                    var baseMethod = FindMethodInHierarchy(context, typeBuilder, memberAccess.Member, new List<Type>());
+                    if (baseMethod != null)
+                    {
+                        return baseMethod.ReturnType;
+                    }
+                    // Возможно это поле - ищем тип поля
+                    var field = context.FindField(typeBuilder, memberAccess.Member);
+                    if (field != null)
+                    {
+                        return field.FieldType;
+                    }
+                    return targetType;
+                }
+                // Для object (локальная переменная из массива) проверяем реальный тип
+                if (targetType == typeof(object))
+                {
+                    Type realTargetType = null;
+                    if (memberAccess.Target is IdentifierExpr targetIdExpr)
+                    {
+                        if (context.TryGetLocalRealType(targetIdExpr.Name, out var localRealType))
+                        {
+                            realTargetType = localRealType;
+                        }
+                        else if (context.TryGetFieldRealType(targetIdExpr.Name, out var fieldRealType))
+                        {
+                            realTargetType = fieldRealType;
+                        }
+                    }
+                    
+                    if (realTargetType is TypeBuilder realTypeBuilder)
+                    {
+                        var method = context.FindMethod(realTypeBuilder, memberAccess.Member, new List<Type>());
+                        if (method != null)
+                        {
+                            return method.ReturnType;
+                        }
+                        var baseMethod = FindMethodInHierarchy(context, realTypeBuilder, memberAccess.Member, new List<Type>());
+                        if (baseMethod != null)
+                        {
+                            return baseMethod.ReturnType;
+                        }
+                        // Возможно это поле
+                        var field = context.FindField(realTypeBuilder, memberAccess.Member);
+                        if (field != null)
+                        {
+                            return field.FieldType;
+                        }
+                    }
+                }
+                return targetType;
             }
             if (expr is CallExpr call)
             {

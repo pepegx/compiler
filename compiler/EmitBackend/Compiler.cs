@@ -432,7 +432,7 @@ namespace EmitBackend
             RegisterConstructor(typeBuilder.Name, ctorBuilder, paramTypes);
 
             var il = ctorBuilder.GetILGenerator();
-            var context = new BuildContext(il, typeBuilder, cls, _classes, _builtinTypes, _classMethods, _methodParamTypes, _classConstructors, _constructorParamTypes);
+            var context = new BuildContext(il, typeBuilder, cls, _classes, _builtinTypes, _classMethods, _methodParamTypes, _classConstructors, _constructorParamTypes, _classFields);
 
             RegisterFieldsInContext(typeBuilder, cls, context);
 
@@ -479,7 +479,7 @@ namespace EmitBackend
             RegisterConstructor(typeBuilder.Name, ctorBuilder, new List<Type>());
 
             var il = ctorBuilder.GetILGenerator();
-            var context = new BuildContext(il, typeBuilder, cls, _classes, _builtinTypes, _classMethods, _methodParamTypes, _classConstructors, _constructorParamTypes);
+            var context = new BuildContext(il, typeBuilder, cls, _classes, _builtinTypes, _classMethods, _methodParamTypes, _classConstructors, _constructorParamTypes, _classFields);
 
             RegisterFieldsInContext(typeBuilder, cls, context);
             EmitBaseConstructorCall(il, typeBuilder);
@@ -764,7 +764,7 @@ namespace EmitBackend
                 : typeof(void);
 
             var il = methodBuilder.GetILGenerator();
-            var context = new BuildContext(il, typeBuilder, cls, _classes, _builtinTypes, _classMethods, _methodParamTypes, _classConstructors, _constructorParamTypes);
+            var context = new BuildContext(il, typeBuilder, cls, _classes, _builtinTypes, _classMethods, _methodParamTypes, _classConstructors, _constructorParamTypes, _classFields);
 
             // Регистрация полей класса
             RegisterFieldsInContext(typeBuilder, cls, context);
@@ -947,6 +947,11 @@ namespace EmitBackend
                 else
                 {
                     il.Emit(OpCodes.Callvirt, mainMethodBuilder);
+                    // Если main возвращает не void, нужно удалить результат со стека
+                    if (mainMethodBuilder.ReturnType != typeof(void))
+                    {
+                        il.Emit(OpCodes.Pop);
+                    }
                 }
             }
             else

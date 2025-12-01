@@ -58,5 +58,7 @@ namespace O_Parser.AST
     {
         public List<VarDeclNode> Locals { get; } = new();
         public List<StmtNode> Statements { get; } = new();
+        // Смешанный список для сохранения порядка: VarDeclNode или StmtNode
+        public List<Node> Body { get; } = new();
     }
 }
