@@ -4,7 +4,7 @@ class MathUtils is
         var counter : Integer(1)
         
         while counter.LessEqual(n) loop
-            result := result.Times(counter)
+            result := result.Mult(counter)
             counter := counter.Plus(Integer(1))
         end
         
@@ -32,7 +32,7 @@ class MathUtils is
         var counter : Integer(0)
         
         while counter.Less(exp) loop
-            result := result.Times(base)
+            result := result.Mult(base)
             counter := counter.Plus(Integer(1))
         end
         
