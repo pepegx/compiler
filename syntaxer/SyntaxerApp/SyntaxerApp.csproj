@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\lexer\LexerApp\LexerApp.csproj" />
-    <ProjectReference Include="..\..\backend\EmitBackend\EmitBackend.csproj" />
   </ItemGroup>
 
   <!-- Поллифилы Index/Range собирать только под net48 -->

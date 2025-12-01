@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace O_Lexer
 {
@@ -16,7 +17,7 @@ namespace O_Lexer
         Assign, Arrow, LParen, RParen, LBracket, RBracket,
 
         // Literals
-        IntegerLiteral, RealLiteral, BooleanLiteral,
+        IntegerLiteral, RealLiteral, BooleanLiteral, StringLiteral,
 
         // Identifier
         Identifier,
@@ -73,6 +74,7 @@ namespace O_Lexer
         }
 
         private char Current => _pos < _input.Length ? _input[_pos] : '\0';
+        private bool AtEnd => _pos >= _input.Length;
 
         private void Advance()
         {
@@ -101,12 +103,48 @@ namespace O_Lexer
             char c = Current;
 
             // Identifiers or keywords
-            if (char.IsLetter(c))
+            if (char.IsLetter(c) || c == '_')
             {
-                string ident = ReadWhile(ch => char.IsLetterOrDigit(ch));
+                string ident = ReadWhile(ch => char.IsLetterOrDigit(ch) || ch == '_');
                 if (Keywords.ContainsKey(ident))
                     return new Token(Keywords[ident], ident);
                 return new Token(TokenType.Identifier, ident);
+            }
+
+            // String literals
+            if (c == '"')
+            {
+                Advance(); // Skip opening quote
+                int start = _pos;
+                StringBuilder sb = new StringBuilder();
+                while (!AtEnd && Current != '"')
+                {
+                    if (Current == '\\')
+                    {
+                        Advance();
+                        if (AtEnd) break;
+                        switch (Current)
+                        {
+                            case 'n': sb.Append('\n'); Advance(); break;
+                            case 't': sb.Append('\t'); Advance(); break;
+                            case 'r': sb.Append('\r'); Advance(); break;
+                            case '\\': sb.Append('\\'); Advance(); break;
+                            case '"': sb.Append('"'); Advance(); break;
+                            default: sb.Append(Current); Advance(); break;
+                        }
+                    }
+                    else
+                    {
+                        sb.Append(Current);
+                        Advance();
+                    }
+                }
+                if (AtEnd)
+                {
+                    return new Token(TokenType.Unknown, "Unterminated string");
+                }
+                Advance(); // Skip closing quote
+                return new Token(TokenType.StringLiteral, sb.ToString());
             }
 
             // Numbers

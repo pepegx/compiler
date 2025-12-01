@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net48;net9.0</TargetFrameworks>
+    <RootNamespace>EmitBackend</RootNamespace>
+    <AssemblyName>EmitBackend</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../lexer/LexerApp/LexerApp.csproj" />
+    <ProjectReference Include="../../syntaxer/SyntaxerApp/SyntaxerApp.csproj" />
+  </ItemGroup>
+</Project>

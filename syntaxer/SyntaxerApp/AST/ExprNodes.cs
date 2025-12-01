@@ -8,6 +8,7 @@ namespace O_Parser.AST
     public sealed class BoolLiteral : ExprNode { public bool Value { get; } public BoolLiteral(bool v){Value=v;} }
     public sealed class IntLiteral : ExprNode { public long Value { get; } public IntLiteral(long v){Value=v;} }
     public sealed class RealLiteral : ExprNode { public double Value { get; } public RealLiteral(double v){Value=v;} }
+    public sealed class StringLiteral : ExprNode { public string Value { get; } public StringLiteral(string v){Value=v;} }
     public sealed class IdentifierExpr : ExprNode { public string Name { get; } public IdentifierExpr(string n){Name=n;} }
 
     public sealed class MemberAccessExpr : ExprNode

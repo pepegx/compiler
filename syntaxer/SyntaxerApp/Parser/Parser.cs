@@ -43,16 +43,43 @@ namespace O_Parser
             }
             Expect(TokenType.Is);
             var cls = new ClassDeclNode(nameTok.Value, baseName);
-            while (!Check(TokenType.End))
+            while (!Check(TokenType.End) && !AtEnd)
             {
+                // CRITICAL: If we encounter a new class declaration, we're done parsing this class
+                // This handles cases where multiple classes are in the same file
+                // This is similar to M&m's approach - they check for Class token and throw an error
+                // But in our case, we should stop parsing this class and let ParseProgram handle the next class
+                if (Check(TokenType.Class))
+                {
+                    // We've reached the next class - stop parsing this one
+                    // This means the previous class is missing an 'end', but we'll handle it gracefully
+                    // Don't consume the Class token - let ParseProgram handle it
+                    break;
+                }
                 cls.Members.Add(ParseMemberDecl());
             }
-            Expect(TokenType.End);
+            
+            // CRITICAL: Only expect End if we didn't break due to encountering a new class
+            // If we broke due to Class token, the next ParseClassDecl() will consume it
+            // This is important - we must NOT consume the Class token here
+            if (!Check(TokenType.Class) && !AtEnd)
+            {
+                Expect(TokenType.End);
+            }
             return cls;
         }
 
         private MemberDeclNode ParseMemberDecl()
         {
+            // CRITICAL: If we encounter a new class declaration, we're done parsing members
+            // This handles cases where multiple classes are in the same file
+            if (Check(TokenType.Class))
+            {
+                // This should not happen in normal flow, but if it does, it means we've reached the next class
+                // Return null or throw - actually, ParseClassDecl should handle this, so this is defensive
+                throw Error($"[member] unexpected class declaration, expected 'var' | 'method' | 'this' | 'end'");
+            }
+            
             if (Check(TokenType.Var))
             {
                 return ParseVarDecl();
@@ -71,8 +98,32 @@ namespace O_Parser
         private VarDeclNode ParseVarDecl()
         {
             Expect(TokenType.Var);
-            var name = Expect(TokenType.Identifier).Value;
+            // Allow keywords as variable names (e.g., "var loop : LoopTest()")
+            // This handles cases where keywords are used as identifiers
+            string name;
+            if (Check(TokenType.Identifier))
+            {
+                name = Expect(TokenType.Identifier).Value;
+            }
+            else if (Check(TokenType.Loop) || Check(TokenType.While) || Check(TokenType.If) || 
+                     Check(TokenType.Then) || Check(TokenType.Else) || Check(TokenType.End) ||
+                     Check(TokenType.Class) || Check(TokenType.Var) || Check(TokenType.Method) ||
+                     Check(TokenType.This) || Check(TokenType.Return) || Check(TokenType.Is) ||
+                     Check(TokenType.Extends) || Check(TokenType.True) || Check(TokenType.False))
+            {
+                // Treat keyword as identifier for variable name
+                name = Cur.Value;
+                _pos++; // Consume the token
+            }
+            else
+            {
+                throw Error($"expected Identifier or keyword, got {Cur}");
+            }
             Expect(TokenType.Colon);
+            // In O language, after colon can be either:
+            // 1. TypeName(args) - constructor call
+            // 2. Expression - any expression
+            // Always parse as expression - it will handle both cases
             var init = ParseExpression();
             return new VarDeclNode(name, init);
         }
@@ -119,7 +170,27 @@ namespace O_Parser
             if (Accept(TokenType.RParen)) return res;
             while (true)
             {
-                var pname = Expect(TokenType.Identifier).Value;
+                // Allow keywords as parameter names (like M&m does)
+                // This handles cases like "method innerLoop(start: Integer, end: Integer)"
+                string pname;
+                if (Check(TokenType.Identifier))
+                {
+                    pname = Expect(TokenType.Identifier).Value;
+                }
+                else if (Check(TokenType.Loop) || Check(TokenType.While) || Check(TokenType.If) || 
+                         Check(TokenType.Then) || Check(TokenType.Else) || Check(TokenType.End) ||
+                         Check(TokenType.Class) || Check(TokenType.Var) || Check(TokenType.Method) ||
+                         Check(TokenType.This) || Check(TokenType.Return) || Check(TokenType.Is) ||
+                         Check(TokenType.Extends) || Check(TokenType.True) || Check(TokenType.False))
+                {
+                    // Treat keyword as identifier for parameter name
+                    pname = Cur.Value;
+                    _pos++; // Consume the token
+                }
+                else
+                {
+                    throw Error($"expected Identifier or keyword for parameter name, got {Cur}");
+                }
                 Expect(TokenType.Colon);
                 var ptype = ParseTypeName();
                 res.Add(new ParameterNode(pname, ptype));
@@ -153,14 +224,47 @@ namespace O_Parser
             {
                 if (Check(TokenType.End) || AtEnd) break;
                 if (stopOnElse && Check(TokenType.Else)) break;
+                // CRITICAL: If we encounter a new class declaration, we're done parsing this body
+                // This handles cases where multiple classes are in the same file
+                if (Check(TokenType.Class)) break;
 
                 if (Check(TokenType.Var))
                 {
                     block.Locals.Add(ParseVarDecl());
                 }
+                else if (Check(TokenType.While) || Check(TokenType.If) || Check(TokenType.Return))
+                {
+                    // Valid statement starters
+                    block.Statements.Add(ParseStatement());
+                }
+                else if ((Check(TokenType.Identifier) && LA(1).Type == TokenType.Assign) ||
+                         ((Check(TokenType.Loop) || Check(TokenType.While) || Check(TokenType.If) || 
+                          Check(TokenType.Then) || Check(TokenType.Else) || Check(TokenType.End) ||
+                          Check(TokenType.Class) || Check(TokenType.Var) || Check(TokenType.Method) ||
+                          Check(TokenType.This) || Check(TokenType.Return) || Check(TokenType.Is) ||
+                          Check(TokenType.Extends) || Check(TokenType.True) || Check(TokenType.False)) 
+                          && LA(1).Type == TokenType.Assign))
+                {
+                    // Assignment statement (identifier or keyword used as identifier)
+                    block.Statements.Add(ParseStatement());
+                }
+                else if (Check(TokenType.Identifier) || Check(TokenType.True) || Check(TokenType.False) ||
+                         Check(TokenType.IntegerLiteral) || Check(TokenType.RealLiteral) || Check(TokenType.StringLiteral) || Check(TokenType.This) ||
+                         Check(TokenType.Loop) || Check(TokenType.While) || Check(TokenType.If) || 
+                         Check(TokenType.Then) || Check(TokenType.Else) || Check(TokenType.End) ||
+                         Check(TokenType.Class) || Check(TokenType.Var) || Check(TokenType.Method) ||
+                         Check(TokenType.Return) || Check(TokenType.Is) || Check(TokenType.Extends))
+                {
+                    // Expression statement - parse as expression statement
+                    // This matches M&m approach - ParseStatement() always parses expression at the end
+                    // Also allow keywords as identifiers in expressions
+                    block.Statements.Add(ParseStatement());
+                }
                 else
                 {
-                    block.Statements.Add(ParseStatement());
+                    // Not a valid statement or variable declaration - we're done
+                    // This handles cases where we've reached the end of the body
+                    break;
                 }
             }
             return block;
@@ -172,12 +276,39 @@ namespace O_Parser
             if (Check(TokenType.If))     return ParseIf();
             if (Check(TokenType.Return)) return ParseReturn();
 
+            // Check for assignment: identifier/keyword followed by :=
+            bool isAssign = false;
+            string? assignName = null;
             if (Check(TokenType.Identifier) && LA(1).Type == TokenType.Assign)
             {
-                var name = Expect(TokenType.Identifier).Value;
+                isAssign = true;
+                assignName = Expect(TokenType.Identifier).Value;
+            }
+            else if ((Check(TokenType.Loop) || Check(TokenType.While) || Check(TokenType.If) || 
+                     Check(TokenType.Then) || Check(TokenType.Else) || Check(TokenType.End) ||
+                     Check(TokenType.Class) || Check(TokenType.Var) || Check(TokenType.Method) ||
+                     Check(TokenType.This) || Check(TokenType.Return) || Check(TokenType.Is) ||
+                     Check(TokenType.Extends) || Check(TokenType.True) || Check(TokenType.False)) 
+                     && LA(1).Type == TokenType.Assign)
+            {
+                // Keyword used as identifier in assignment
+                isAssign = true;
+                assignName = Cur.Value;
+                _pos++; // Consume the keyword token
+            }
+            
+            if (isAssign)
+            {
                 Expect(TokenType.Assign);
                 var expr = ParseExpression();
-                return new AssignStmt(name, expr);
+                return new AssignStmt(assignName, expr);
+            }
+
+            // Only parse as expression if current token can start an expression
+            // Dot cannot start an expression - it should be handled in ParseExpression's while loop
+            if (Check(TokenType.Dot))
+            {
+                throw Error($"unexpected Dot - expressions cannot start with Dot: {Cur}");
             }
 
             var e = ParseExpression();
@@ -222,29 +353,161 @@ namespace O_Parser
         {
             var expr = ParseStartAtom();
 
+            // Use M&m approach exactly: check for continuation tokens (LParen, Dot)
+            // If none match, break naturally. This handles termination on keywords like 'loop', 'then', etc.
             while (true)
             {
-                if (Accept(TokenType.LParen))
+                // Check for tokens that terminate expressions BEFORE checking for continuation tokens
+                // This prevents entering Dot/LParen blocks when we should stop
+                if (Check(TokenType.Loop) || Check(TokenType.Then) || Check(TokenType.End) || 
+                    Check(TokenType.Else) || Check(TokenType.Class) || Check(TokenType.While) || 
+                    Check(TokenType.If) || Check(TokenType.Return) || Check(TokenType.Var) ||
+                    Check(TokenType.RParen) || Check(TokenType.Comma) || Check(TokenType.RBracket))
                 {
+                    break;
+                }
+                
+                if (Check(TokenType.LParen))
+                {
+                    Accept(TokenType.LParen);
                     var args = ParseArgumentsAfterLParen();
-                    expr = new CallExpr(expr, args);
-                    continue;
+                    
+                    // If expr is an identifier, check if it's a built-in type constructor
+                    // Built-in types: Integer, Real, Boolean, String, Array[...]
+                    // If it's not a built-in type, treat as method call on 'this'
+                    if (expr is IdentifierExpr idExpr)
+                    {
+                        var name = idExpr.Name;
+                        // Check if it's a built-in type constructor
+                        if (name == "Integer" || name == "Real" || name == "Boolean" || name == "String" || name.StartsWith("Array[") || name.StartsWith("List["))
+                        {
+                            expr = new NewExpr(name, args);
+                        }
+                        else
+                        {
+                            // Method call on 'this' - create implicit this.method() call
+                            expr = new CallExpr(new MemberAccessExpr(ThisExpr.Instance, name), args);
+                        }
+                    }
+                    else
+                    {
+                        // Method call on an expression
+                        expr = new CallExpr(expr, args);
+                    }
+                    // CRITICAL: After parsing method/constructor call, check for terminator tokens BEFORE continuing the loop
+                    // This is essential to stop parsing when we encounter keywords like 'loop', 'then', 'end', etc.
+                    // This matches M&m approach - they check for terminators after each expression part
+                    if (Check(TokenType.Loop) || Check(TokenType.Then) || Check(TokenType.End) || 
+                        Check(TokenType.Else) || Check(TokenType.Class) || Check(TokenType.While) || 
+                        Check(TokenType.If) || Check(TokenType.Return) || Check(TokenType.Var) ||
+                        Check(TokenType.RParen) || Check(TokenType.Comma) || Check(TokenType.RBracket))
+                    {
+                        // We've encountered a terminator - stop parsing the expression
+                        break;
+                    }
+                    // If no terminator, continue the loop to check for more Dot/LParen
                 }
-                if (Accept(TokenType.Dot))
+                else if (Check(TokenType.Dot))
                 {
-                    var member = Expect(TokenType.Identifier).Value;
-                    expr = new MemberAccessExpr(expr, member);
-                    continue;
+                    // CRITICAL: Check lookahead BEFORE accepting Dot (like M&m does)
+                    // If the token after Dot is not Identifier (e.g., it's Loop, Then, End, etc.), 
+                    // we should stop parsing the expression, not accept the Dot
+                    var lookahead = LA(1);
+                    if (lookahead.Type != TokenType.Identifier)
+                    {
+                        // Token after Dot is not Identifier - we're done parsing the expression
+                        // Don't accept the Dot, just break
+                        break;
+                    }
+                    
+                    Accept(TokenType.Dot);
+                    var memberName = Expect(TokenType.Identifier).Value;
+                    
+                    // Check if it's a method call
+                    if (Check(TokenType.LParen))
+                    {
+                        Accept(TokenType.LParen);
+                        var args = new List<ExprNode>();
+                        if (!Check(TokenType.RParen))
+                        {
+                            do
+                            {
+                                args.Add(ParseExpression());
+                            } while (Accept(TokenType.Comma));
+                        }
+                        Expect(TokenType.RParen);
+                        // In O language, method calls are: expr.member(args)
+                        expr = new CallExpr(new MemberAccessExpr(expr, memberName), args);
+                        // CRITICAL: After parsing method call, check for terminator tokens BEFORE continuing the loop
+                        // This is essential to stop parsing when we encounter keywords like 'loop', 'then', 'end', etc.
+                        // This matches M&m approach - they check for terminators after each expression part
+                        if (Check(TokenType.Loop) || Check(TokenType.Then) || Check(TokenType.End) || 
+                            Check(TokenType.Else) || Check(TokenType.Class) || Check(TokenType.While) || 
+                            Check(TokenType.If) || Check(TokenType.Return) || Check(TokenType.Var) ||
+                            Check(TokenType.RParen) || Check(TokenType.Comma) || Check(TokenType.RBracket))
+                        {
+                            // We've encountered a terminator - stop parsing the expression
+                            break;
+                        }
+                        // If no terminator, continue the loop to check for more Dot/LParen
+                    }
+                    else
+                    {
+                        // Just member access, no method call
+                        expr = new MemberAccessExpr(expr, memberName);
+                    }
                 }
-                break;
+                else
+                {
+                    // M&m approach: if token is not LParen or Dot, break
+                    // This naturally handles termination on keywords like 'loop', 'then', 'end', etc.
+                    break;
+                }
             }
             return expr;
         }
 
         private ExprNode ParseStartAtom()
         {
+            // If current token is Dot, it means we're trying to parse an expression that starts with Dot
+            // This shouldn't happen - Dot should be handled in ParseExpression's while loop
+            // But if it does, it's likely a parsing error - maybe we're in the wrong context
+            if (Check(TokenType.Dot))
+            {
+                // This is an error - Dot cannot start an expression
+                // But let's check if we're in a context where this might be valid
+                // Actually, this should never happen, so throw an error
+                throw Error($"unexpected Dot at expression start: {Cur}");
+            }
+            
+            // CRITICAL: Handle unary minus for negative numbers (e.g., Integer(-1))
+            // Check if current token is Unknown with value "-" and next token is a number
+            if (Check(TokenType.Unknown) && Cur.Value == "-")
+            {
+                // Look ahead to see if next token is a number
+                if (LA(1).Type == TokenType.IntegerLiteral)
+                {
+                    Expect(TokenType.Unknown); // Consume the "-"
+                    var t = Expect(TokenType.IntegerLiteral);
+                    long v = long.Parse(t.Value, CultureInfo.InvariantCulture);
+                    return new IntLiteral(-v); // Return negative integer
+                }
+                if (LA(1).Type == TokenType.RealLiteral)
+                {
+                    Expect(TokenType.Unknown); // Consume the "-"
+                    var t = Expect(TokenType.RealLiteral);
+                    double v = double.Parse(t.Value, CultureInfo.InvariantCulture);
+                    return new RealLiteral(-v); // Return negative real
+                }
+            }
+            
             if (Accept(TokenType.True))  return new BoolLiteral(true);
             if (Accept(TokenType.False)) return new BoolLiteral(false);
+            if (Check(TokenType.StringLiteral))
+            {
+                var t = Expect(TokenType.StringLiteral);
+                return new StringLiteral(t.Value);
+            }
             if (Check(TokenType.IntegerLiteral))
             {
                 var t = Expect(TokenType.IntegerLiteral);
@@ -259,18 +522,62 @@ namespace O_Parser
             }
             if (Accept(TokenType.This)) return ThisExpr.Instance;
 
+            // Allow keywords as identifiers in expressions (e.g., "loop.sumToN(...)")
+            // This handles cases where keywords are used as variable names
+            string name;
             if (Check(TokenType.Identifier))
             {
-                var name = Expect(TokenType.Identifier).Value;
-                if (Accept(TokenType.LParen))
-                {
-                    var args = ParseArgumentsAfterLParen();
-                    return new NewExpr(name, args);
-                }
-                return new IdentifierExpr(name);
+                name = Expect(TokenType.Identifier).Value;
             }
-
-            throw Error($"invalid expression start: {Cur}");
+            else if (Check(TokenType.Loop) || Check(TokenType.While) || Check(TokenType.If) || 
+                     Check(TokenType.Then) || Check(TokenType.Else) || Check(TokenType.End) ||
+                     Check(TokenType.Class) || Check(TokenType.Var) || Check(TokenType.Method) ||
+                     Check(TokenType.This) || Check(TokenType.Return) || Check(TokenType.Is) ||
+                     Check(TokenType.Extends) || Check(TokenType.True) || Check(TokenType.False))
+            {
+                // Treat keyword as identifier for expression
+                name = Cur.Value;
+                _pos++; // Consume the token
+            }
+            else
+            {
+                throw Error($"invalid expression start: {Cur}");
+            }
+            
+            // CRITICAL: Handle generic types like Array[Integer]
+            // Check if next token is LBracket (for generic type syntax)
+            string fullTypeName = name;
+            if (Check(TokenType.LBracket))
+            {
+                // Parse generic type parameters: Array[Integer] or Array[Integer, Real]
+                Accept(TokenType.LBracket);
+                var typeArgs = new List<string>();
+                typeArgs.Add(ParseTypeName()); // Parse first type argument
+                while (Accept(TokenType.Comma))
+                {
+                    typeArgs.Add(ParseTypeName()); // Parse additional type arguments
+                }
+                Expect(TokenType.RBracket);
+                fullTypeName = $"{name}[{string.Join(",", typeArgs)}]";
+            }
+            
+            if (Accept(TokenType.LParen))
+            {
+                var args = ParseArgumentsAfterLParen();
+                // Check if it's a built-in type constructor
+                // Built-in types: Integer, Real, Boolean, String, Array[...], List[...]
+                // If it's not a built-in type, treat as method call on 'this'
+                if (fullTypeName == "Integer" || fullTypeName == "Real" || fullTypeName == "Boolean" || fullTypeName == "String" || fullTypeName.StartsWith("Array[") || fullTypeName.StartsWith("List["))
+                {
+                    return new NewExpr(fullTypeName, args);
+                }
+                else
+                {
+                    // Method call on 'this' - create implicit this.method() call
+                    return new CallExpr(new MemberAccessExpr(ThisExpr.Instance, fullTypeName), args);
+                }
+            }
+            return new IdentifierExpr(fullTypeName);
         }
 
         private List<ExprNode> ParseArgumentsAfterLParen()

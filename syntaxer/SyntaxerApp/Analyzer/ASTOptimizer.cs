@@ -94,6 +94,19 @@ namespace O_Parser.Analyzer
 
         private void CollectUsedVariablesFromBlock(BlockNode block)
         {
+            // CRITICAL: Collect used variables from local variable initializers FIRST
+            // This is essential because variables can be used in other variable initializers
+            // Example: var result1 : temp1.Times(c); var final : result1.Plus(result2)
+            // Here, result1 is used in the initializer of final, so it must not be removed
+            foreach (var localVar in block.Locals)
+            {
+                if (localVar.Initializer != null)
+                {
+                    CollectUsedVariablesFromExpr(localVar.Initializer);
+                }
+            }
+            
+            // Then collect from statements
             foreach (var stmt in block.Statements)
             {
                 CollectUsedVariablesFromStmt(stmt);
@@ -136,7 +149,10 @@ namespace O_Parser.Analyzer
                     _usedVariables.Add(id.Name);
                     break;
                 case MemberAccessExpr ma:
+                    // CRITICAL: The Target of MemberAccessExpr is the variable being used!
+                    // Example: result1.Plus(result2) - result1 is used here
                     CollectUsedVariablesFromExpr(ma.Target);
+                    // Member is a string (method/field name), not a variable
                     break;
                 case CallExpr call:
                     CollectUsedVariablesFromExpr(call.Callee);
@@ -181,12 +197,22 @@ namespace O_Parser.Analyzer
             var localsToRemove = new HashSet<string>();
 
             // Optimization: Remove unused local variables
+            // BUT: Don't remove if initializer has side effects (method calls)
             foreach (var localVar in block.Locals)
             {
                 if (!_usedVariables.Contains(localVar.Name))
                 {
-                    localsToRemove.Add(localVar.Name);
-                    _optimizationLog.Add($"OPTIMIZATION: Removed unused local variable '{localVar.Name}'");
+                    // Check if initializer has side effects (method calls)
+                    bool hasSideEffects = HasSideEffects(localVar.Initializer);
+                    if (!hasSideEffects)
+                    {
+                        localsToRemove.Add(localVar.Name);
+                        _optimizationLog.Add($"OPTIMIZATION: Removed unused local variable '{localVar.Name}'");
+                    }
+                    else
+                    {
+                        _optimizationLog.Add($"OPTIMIZATION: Keeping unused local variable '{localVar.Name}' (has side effects)");
+                    }
                 }
                 // Note: Local variable initializers in O language are already constants
                 // Example: var x : Integer(5) - this is already optimal
@@ -329,6 +355,40 @@ namespace O_Parser.Analyzer
         private bool IsConstantExpression(ExprNode expr)
         {
             return expr is BoolLiteral || expr is IntLiteral || expr is RealLiteral;
+        }
+
+        // Check if expression has side effects (method calls, constructor calls with side effects)
+        private bool HasSideEffects(ExprNode expr)
+        {
+            if (expr == null) return false;
+
+            switch (expr)
+            {
+                case CallExpr call:
+                    // Method calls have side effects - they must be executed
+                    return true;
+                case MemberAccessExpr ma:
+                    // Member access might be a method call - check recursively
+                    return HasSideEffects(ma.Target);
+                case NewExpr newExpr:
+                    // Constructor calls might have side effects if they have arguments with side effects
+                    foreach (var arg in newExpr.Arguments)
+                    {
+                        if (HasSideEffects(arg)) return true;
+                    }
+                    // Simple constructors like Integer(5) don't have side effects
+                    return false;
+                case IdentifierExpr:
+                case ThisExpr:
+                case BoolLiteral:
+                case IntLiteral:
+                case RealLiteral:
+                    // These don't have side effects
+                    return false;
+                default:
+                    // Unknown expression type - assume it might have side effects to be safe
+                    return true;
+            }
         }
     }
 }
