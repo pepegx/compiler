@@ -458,7 +458,28 @@ namespace EmitBackend
                 context.RegisterParameter(ctor.Parameters[i].Name, i + 1, paramTypes[i], realType);
             }
 
-            EmitBaseConstructorCall(il, typeBuilder);
+            // Если есть базовый класс, пытаемся найти базовый конструктор с такими же параметрами
+            List<Type> baseCtorParamTypes = paramTypes;
+            if (cls.BaseName != null && paramTypes.Count > 0)
+            {
+                // Проверяем, есть ли базовый конструктор с такими же параметрами
+                if (_classes.ContainsKey(cls.BaseName))
+                {
+                    var baseTypeBuilder = _classes[cls.BaseName];
+                    var baseCtor = FindBaseConstructor(baseTypeBuilder.Name, paramTypes);
+                    if (baseCtor == null)
+                    {
+                        // Если не найден, используем дефолтный
+                        baseCtorParamTypes = null;
+                    }
+                }
+            }
+            else
+            {
+                baseCtorParamTypes = null;
+            }
+            
+            EmitBaseConstructorCall(il, typeBuilder, baseCtorParamTypes);
             EmitFieldInitializers(il, typeBuilder, cls, context);
 
             if (ctor.Body != null)
@@ -482,7 +503,7 @@ namespace EmitBackend
             var context = new BuildContext(il, typeBuilder, cls, _classes, _builtinTypes, _classMethods, _methodParamTypes, _classConstructors, _constructorParamTypes, _classFields);
 
             RegisterFieldsInContext(typeBuilder, cls, context);
-            EmitBaseConstructorCall(il, typeBuilder);
+            EmitBaseConstructorCall(il, typeBuilder, null);
             EmitFieldInitializers(il, typeBuilder, cls, context);
 
             il.Emit(OpCodes.Ret);
@@ -573,7 +594,7 @@ namespace EmitBackend
             _constructorParamTypes[ctorBuilder] = paramTypes;
         }
 
-        private void EmitBaseConstructorCall(ILGenerator il, TypeBuilder typeBuilder)
+        private void EmitBaseConstructorCall(ILGenerator il, TypeBuilder typeBuilder, List<Type> paramTypes = null)
         {
             il.Emit(OpCodes.Ldarg_0);
             
@@ -587,9 +608,25 @@ namespace EmitBackend
             }
             else if (typeBuilder.BaseType is TypeBuilder baseTypeBuilder)
             {
-                var baseCtor = FindDefaultConstructor(baseTypeBuilder.Name);
+                ConstructorBuilder baseCtor = null;
+                if (paramTypes != null && paramTypes.Count > 0)
+                {
+                    baseCtor = FindBaseConstructor(baseTypeBuilder.Name, paramTypes);
+                }
+                if (baseCtor == null)
+                {
+                    baseCtor = FindDefaultConstructor(baseTypeBuilder.Name);
+                }
                 if (baseCtor != null)
                 {
+                    // Загружаем параметры на стек перед вызовом только если они есть
+                    if (paramTypes != null && paramTypes.Count > 0)
+                    {
+                        for (int i = 0; i < paramTypes.Count; i++)
+                        {
+                            il.Emit(OpCodes.Ldarg, i + 1);
+                        }
+                    }
                     il.Emit(OpCodes.Call, baseCtor);
                 }
                 else
@@ -603,12 +640,56 @@ namespace EmitBackend
             }
             else
             {
-                var baseCtor = typeBuilder.BaseType.GetConstructor(Type.EmptyTypes);
+                ConstructorInfo baseCtor = null;
+                if (paramTypes != null && paramTypes.Count > 0)
+                {
+                    baseCtor = typeBuilder.BaseType.GetConstructor(paramTypes.ToArray());
+                }
+                if (baseCtor == null)
+                {
+                    baseCtor = typeBuilder.BaseType.GetConstructor(Type.EmptyTypes);
+                }
                 if (baseCtor != null)
                 {
+                    if (paramTypes != null && paramTypes.Count > 0)
+                    {
+                        for (int i = 0; i < paramTypes.Count; i++)
+                        {
+                            il.Emit(OpCodes.Ldarg, i + 1);
+                        }
+                    }
                     il.Emit(OpCodes.Call, baseCtor);
                 }
             }
+        }
+        
+        
+        private ConstructorBuilder FindBaseConstructor(string className, List<Type> paramTypes)
+        {
+            if (_classConstructors.TryGetValue(className, out var constructors))
+            {
+                foreach (var ctor in constructors)
+                {
+                    if (_constructorParamTypes.TryGetValue(ctor, out var ctorParamTypes) && 
+                        ctorParamTypes.Count == paramTypes.Count)
+                    {
+                        bool match = true;
+                        for (int i = 0; i < paramTypes.Count; i++)
+                        {
+                            if (!TypesMatch(ctorParamTypes[i], paramTypes[i]))
+                            {
+                                match = false;
+                                break;
+                            }
+                        }
+                        if (match)
+                        {
+                            return ctor;
+                        }
+                    }
+                }
+            }
+            return null;
         }
 
         private ConstructorBuilder FindDefaultConstructor(string className)

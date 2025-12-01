@@ -219,6 +219,9 @@ namespace O_Parser.Analyzer
             }
 
             block.Locals.RemoveAll(v => localsToRemove.Contains(v.Name));
+            
+            // Also remove from Body to maintain consistency
+            block.Body.RemoveAll(item => item is VarDeclNode varDecl && localsToRemove.Contains(varDecl.Name));
 
             // Optimize statements
             var optimizedStatements = new List<StmtNode>();

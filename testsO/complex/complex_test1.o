@@ -1,0 +1,218 @@
+class Entity is
+    var entityId : Integer(0)
+    var active : true
+    
+    this(id: Integer) is
+        entityId := id
+        active := true
+    end
+    
+    method getId : Integer => entityId
+    
+    method isActive : Boolean => active
+    
+    method deactivate is
+        active := false
+    end
+    
+    method getType : Integer => Integer(0)
+    
+    method getValue : Integer => entityId
+end
+
+class Character extends Entity is
+    var health : Integer(100)
+    var level : Integer(1)
+    
+    this(id: Integer, hp: Integer) is
+        entityId := id
+        active := true
+        health := hp
+        level := Integer(1)
+    end
+    
+    this(id: Integer, hp: Integer, lvl: Integer) is
+        entityId := id
+        active := true
+        health := hp
+        level := lvl
+    end
+    
+    method getHealth : Integer => health
+    
+    method getLevel : Integer => level
+    
+    method levelUp is
+        level := level.Plus(Integer(1))
+        health := health.Plus(Integer(10))
+    end
+    
+    method getType : Integer => Integer(1)
+    
+    method getValue : Integer => health.Plus(level.Mult(Integer(10)))
+    
+    method takeDamage(dmg: Integer) : Integer is
+        health := health.Minus(dmg)
+        if health.Less(Integer(0)) then
+            health := Integer(0)
+            active := false
+        end
+        return health
+    end
+end
+
+class Hero extends Character is
+    var mana : Integer(50)
+    var heroClass : Integer(0)
+    
+    this(id: Integer, hp: Integer, lvl: Integer, mp: Integer) is
+        entityId := id
+        active := true
+        health := hp
+        level := lvl
+        mana := mp
+        heroClass := Integer(0)
+    end
+    
+    this(id: Integer, hp: Integer, lvl: Integer, mp: Integer, cls: Integer) is
+        entityId := id
+        active := true
+        health := hp
+        level := lvl
+        mana := mp
+        heroClass := cls
+    end
+    
+    method getMana : Integer => mana
+    
+    method getHeroClass : Integer => heroClass
+    
+    method getType : Integer => Integer(2)
+    
+    method getValue : Integer => health.Plus(mana).Plus(level.Mult(Integer(20)))
+    
+    method castSpell(cost: Integer) : Boolean is
+        if mana.GreaterEqual(cost) then
+            mana := mana.Minus(cost)
+            return true
+        end
+        return false
+    end
+    
+    method fullRestore is
+        health := Integer(100).Plus(level.Mult(Integer(10)))
+        mana := Integer(50).Plus(level.Mult(Integer(5)))
+    end
+end
+
+class GameWorld is
+    var entities : Array[Entity](5)
+    var entityCount : Integer(0)
+    
+    this() is
+        entities := Array[Entity](5)
+        entityCount := Integer(0)
+    end
+    
+    method addEntity(e: Entity) is
+        if entityCount.Less(Integer(5)) then
+            entities.set(entityCount, e)
+            entityCount := entityCount.Plus(Integer(1))
+        end
+    end
+    
+    method getEntity(idx: Integer) : Entity is
+        return entities.get(idx)
+    end
+    
+    method getTotalValue : Integer is
+        var total : Integer(0)
+        var i : Integer(0)
+        while i.Less(entityCount) loop
+            var e : entities.get(i)
+            total := total.Plus(e.getValue)
+            i := i.Plus(Integer(1))
+        end
+        return total
+    end
+    
+    method countActive : Integer is
+        var count : Integer(0)
+        var i : Integer(0)
+        while i.Less(entityCount) loop
+            var e : entities.get(i)
+            if e.isActive then
+                count := count.Plus(Integer(1))
+            end
+            i := i.Plus(Integer(1))
+        end
+        return count
+    end
+    
+    method processAll is
+        var i : Integer(0)
+        while i.Less(entityCount) loop
+            var e : entities.get(i)
+            print(e.getId)
+            print(e.getType)
+            print(e.getValue)
+            i := i.Plus(Integer(1))
+        end
+    end
+end
+
+class TestRunner is
+    this() is
+        var world : GameWorld()
+        
+        var entity1 : Entity(Integer(1))
+        var char1 : Character(Integer(2), Integer(80))
+        var char2 : Character(Integer(3), Integer(90), Integer(5))
+        var hero1 : Hero(Integer(4), Integer(100), Integer(10), Integer(75))
+        var hero2 : Hero(Integer(5), Integer(120), Integer(15), Integer(100), Integer(1))
+        
+        world.addEntity(entity1)
+        world.addEntity(char1)
+        world.addEntity(char2)
+        world.addEntity(hero1)
+        world.addEntity(hero2)
+        
+        print(world.entityCount)
+        
+        print(world.getTotalValue)
+        
+        print(world.countActive)
+        
+        var e0 : world.getEntity(Integer(0))
+        var e1 : world.getEntity(Integer(1))
+        var e2 : world.getEntity(Integer(2))
+        var e3 : world.getEntity(Integer(3))
+        var e4 : world.getEntity(Integer(4))
+        
+        print(e0.getValue)
+        print(e1.getValue)
+        print(e2.getValue)
+        print(e3.getValue)
+        print(e4.getValue)
+        
+        entity1.deactivate
+        print(world.countActive)
+        
+        char1.levelUp
+        print(char1.getHealth)
+        print(char1.getLevel)
+        
+        var dmgResult : char2.takeDamage(Integer(100))
+        print(dmgResult)
+        print(char2.isActive)
+        
+        var spellResult : hero1.castSpell(Integer(50))
+        print(hero1.getMana)
+        
+        hero2.fullRestore
+        print(hero2.getHealth)
+        print(hero2.getMana)
+        
+        world.processAll
+    end
+end

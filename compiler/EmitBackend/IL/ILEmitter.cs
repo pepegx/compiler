@@ -14,37 +14,84 @@ namespace EmitBackend.IL
             // Сначала объявляем все локальные переменные (для IL нужно объявить заранее)
             foreach (var local in block.Locals)
             {
-                var realType = InferType(local.Initializer, context);
+                Type realType;
                 
-                // Для массивов сохраняем тип элемента
-                if (local.Initializer is NewExpr newExpr && 
-                    newExpr.ClassName.StartsWith("Array[") && newExpr.ClassName.EndsWith("]"))
+                // Проверяем, является ли Initializer просто именем типа (без инициализатора)
+                if (local.Initializer is IdentifierExpr typeId)
                 {
-                    var elementType = context.ResolveArrayElementType(newExpr.ClassName);
-                    context.RegisterArrayElementType(local.Name, elementType);
-                }
-                
-                // Для списков сохраняем тип элемента
-                if (local.Initializer is NewExpr listNewExpr && 
-                    listNewExpr.ClassName.StartsWith("List[") && listNewExpr.ClassName.EndsWith("]"))
-                {
-                    var elementTypeName = listNewExpr.ClassName.Substring(5, listNewExpr.ClassName.Length - 6);
-                    var elementType = context.ResolveType(elementTypeName);
-                    context.RegisterArrayElementType(local.Name, elementType);
-                }
-                
-                // Для вызова get() на массиве или head() на списке - используем тип элемента
-                if (local.Initializer is CallExpr callExpr && 
-                    callExpr.Callee is MemberAccessExpr memberAccess)
-                {
-                    if (memberAccess.Member == "get" || memberAccess.Member == "head")
+                    // Это объявление переменной без инициализатора: var x : Integer
+                    // Определяем тип на основе имени типа
+                    var typeName = typeId.Name;
+                    if (typeName == "Integer")
                     {
-                        // Проверяем, является ли target массивом или списком
-                        if (memberAccess.Target is IdentifierExpr arrayId)
+                        realType = typeof(int);
+                    }
+                    else if (typeName == "Real")
+                    {
+                        realType = typeof(double);
+                    }
+                    else if (typeName == "Boolean")
+                    {
+                        realType = typeof(bool);
+                    }
+                    else if (typeName == "String")
+                    {
+                        realType = typeof(string);
+                    }
+                    else if (typeName.StartsWith("Array[") && typeName.EndsWith("]"))
+                    {
+                        realType = typeof(object[]);
+                        var elementType = context.ResolveArrayElementType(typeName);
+                        context.RegisterArrayElementType(local.Name, elementType);
+                    }
+                    else if (typeName.StartsWith("List[") && typeName.EndsWith("]"))
+                    {
+                        realType = typeof(System.Collections.Generic.List<object>);
+                        var elementTypeName = typeName.Substring(5, typeName.Length - 6);
+                        var elementType = context.ResolveType(elementTypeName);
+                        context.RegisterArrayElementType(local.Name, elementType);
+                    }
+                    else
+                    {
+                        // Пользовательский тип
+                        realType = context.ResolveType(typeName);
+                    }
+                }
+                else
+                {
+                    // Переменная с инициализатором
+                    realType = InferType(local.Initializer, context);
+                    
+                    // Для массивов сохраняем тип элемента
+                    if (local.Initializer is NewExpr newExpr && 
+                        newExpr.ClassName.StartsWith("Array[") && newExpr.ClassName.EndsWith("]"))
+                    {
+                        var elementType = context.ResolveArrayElementType(newExpr.ClassName);
+                        context.RegisterArrayElementType(local.Name, elementType);
+                    }
+                    
+                    // Для списков сохраняем тип элемента
+                    if (local.Initializer is NewExpr listNewExpr && 
+                        listNewExpr.ClassName.StartsWith("List[") && listNewExpr.ClassName.EndsWith("]"))
+                    {
+                        var elementTypeName = listNewExpr.ClassName.Substring(5, listNewExpr.ClassName.Length - 6);
+                        var elementType = context.ResolveType(elementTypeName);
+                        context.RegisterArrayElementType(local.Name, elementType);
+                    }
+                    
+                    // Для вызова get() на массиве или head() на списке - используем тип элемента
+                    if (local.Initializer is CallExpr callExpr && 
+                        callExpr.Callee is MemberAccessExpr memberAccess)
+                    {
+                        if (memberAccess.Member == "get" || memberAccess.Member == "head")
                         {
-                            if (context.TryGetArrayElementType(arrayId.Name, out var elementType))
+                            // Проверяем, является ли target массивом или списком
+                            if (memberAccess.Target is IdentifierExpr arrayId)
                             {
-                                realType = elementType;
+                                if (context.TryGetArrayElementType(arrayId.Name, out var elementType))
+                                {
+                                    realType = elementType;
+                                }
                             }
                         }
                     }
@@ -63,10 +110,20 @@ namespace EmitBackend.IL
                 if (item is VarDeclNode local)
                 {
                     // Инициализация локальной переменной
-                    EmitExpression(context, local.Initializer);
-                    if (context.TryGetLocal(local.Name, out var localBuilder))
+                    // Если Initializer является IdentifierExpr с именем типа, это объявление без инициализатора
+                    if (local.Initializer is IdentifierExpr typeId)
                     {
-                        context.IL.Emit(OpCodes.Stloc, localBuilder);
+                        // Переменная объявлена без инициализатора - не эмитим ничего
+                        // Локальная переменная уже инициализирована значением по умолчанию (.locals init)
+                    }
+                    else
+                    {
+                        // Переменная с инициализатором
+                        EmitExpression(context, local.Initializer);
+                        if (context.TryGetLocal(local.Name, out var localBuilder))
+                        {
+                            context.IL.Emit(OpCodes.Stloc, localBuilder);
+                        }
                     }
                 }
                 else if (item is StmtNode stmt)
@@ -282,10 +339,23 @@ namespace EmitBackend.IL
             // Проверяем, является ли это созданием списка
             if (IsListType(newExpr.ClassName, out var listElementTypeName))
             {
+                var listType = typeof(System.Collections.Generic.List<object>);
+                
+                // Если есть аргумент, проверяем его тип
+                if (newExpr.Arguments.Count > 0)
+                {
+                    var argType = InferType(newExpr.Arguments[0], context);
+                    // Если аргумент уже является List, просто возвращаем его (для tail(), append() и т.д.)
+                    if (argType == listType)
+                    {
+                        EmitExpression(context, newExpr.Arguments[0]);
+                        return;
+                    }
+                }
+                
                 // Создаём List<object> для поддержки полиморфизма
                 // List[Integer]() -> new List<object>()
                 // List[Integer](5) -> new List<object>() с добавлением элемента
-                var listType = typeof(System.Collections.Generic.List<object>);
                 var listCtor = listType.GetConstructor(Type.EmptyTypes);
                 context.IL.Emit(OpCodes.Newobj, listCtor);
                 

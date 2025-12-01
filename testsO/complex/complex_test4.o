@@ -1,0 +1,326 @@
+class Point2D is
+    var x : Real(0.0)
+    var y : Real(0.0)
+    
+    this(px: Real, py: Real) is
+        x := px
+        y := py
+    end
+    
+    method getX : Real => x
+    method getY : Real => y
+    
+    method distanceFromOrigin : Real is
+        return x.Mult(x).Plus(y.Mult(y))
+    end
+    
+    method add(other: Point2D) : Point2D is
+        return Point2D(x.Plus(other.getX), y.Plus(other.getY))
+    end
+    
+    method scale(factor: Real) : Point2D is
+        return Point2D(x.Mult(factor), y.Mult(factor))
+    end
+    
+    method toIntegerX : Integer is
+        return x.toInteger
+    end
+    
+    method toIntegerY : Integer is
+        return y.toInteger
+    end
+end
+
+class Vector3D extends Point2D is
+    var z : Real(0.0)
+    
+    this(px: Real, py: Real, pz: Real) is
+        x := px
+        y := py
+        z := pz
+    end
+    
+    method getZ : Real => z
+    
+    method magnitude : Real is
+        return x.Mult(x).Plus(y.Mult(y)).Plus(z.Mult(z))
+    end
+    
+    method dotProduct(other: Vector3D) : Real is
+        return x.Mult(other.getX).Plus(y.Mult(other.getY)).Plus(z.Mult(other.getZ))
+    end
+end
+
+class MathUtils is
+    method intToReal(n: Integer) : Real is
+        return n.toReal
+    end
+    
+    method realToInt(r: Real) : Integer is
+        return r.toInteger
+    end
+    
+    method addReals(a: Real, b: Real) : Real is
+        return a.Plus(b)
+    end
+    
+    method subtractReals(a: Real, b: Real) : Real is
+        return a.Minus(b)
+    end
+    
+    method multiplyReals(a: Real, b: Real) : Real is
+        return a.Mult(b)
+    end
+    
+    method divideReals(a: Real, b: Real) : Real is
+        return a.Div(b)
+    end
+    
+    method compareReals(a: Real, b: Real) : Boolean is
+        return a.Less(b)
+    end
+    
+    method sumIntArray(arr: Array[Integer]) : Integer is
+        var total : Integer(0)
+        var i : Integer(0)
+        while i.Less(arr.Length) loop
+            total := total.Plus(arr.get(i))
+            i := i.Plus(Integer(1))
+        end
+        return total
+    end
+    
+    method averageIntArray(arr: Array[Integer]) : Real is
+        var sum : this.sumIntArray(arr)
+        return sum.toReal.Div(arr.Length.toReal)
+    end
+end
+
+class Circle is
+    var centerX : Real(0.0)
+    var centerY : Real(0.0)
+    var radius : Real(1.0)
+    
+    this(cx: Real, cy: Real, r: Real) is
+        centerX := cx
+        centerY := cy
+        radius := r
+    end
+    
+    method getRadius : Real => radius
+    method getCenterX : Real => centerX
+    method getCenterY : Real => centerY
+    
+    method area : Real is
+        return Real(3.14159).Mult(radius).Mult(radius)
+    end
+    
+    method circumference : Real is
+        return Real(2.0).Mult(Real(3.14159)).Mult(radius)
+    end
+    
+    method containsPoint(px: Real, py: Real) : Boolean is
+        var dx : px.Minus(centerX)
+        var dy : py.Minus(centerY)
+        var distSq : dx.Mult(dx).Plus(dy.Mult(dy))
+        var radiusSq : radius.Mult(radius)
+        return distSq.LessEqual(radiusSq)
+    end
+    
+    method scale(factor: Real) is
+        radius := radius.Mult(factor)
+    end
+end
+
+class Rectangle is
+    var width : Real(1.0)
+    var height : Real(1.0)
+    
+    this(w: Real, h: Real) is
+        width := w
+        height := h
+    end
+    
+    method getWidth : Real => width
+    method getHeight : Real => height
+    
+    method area : Real is
+        return width.Mult(height)
+    end
+    
+    method perimeter : Real is
+        return Real(2.0).Mult(width.Plus(height))
+    end
+    
+    method isSquare : Boolean is
+        return width.Equal(height)
+    end
+    
+    method diagonal : Real is
+        return width.Mult(width).Plus(height.Mult(height))
+    end
+end
+
+class TypeConversionTest is
+    method testIntToReal : Real is
+        var intVal : Integer(42)
+        var realVal : intVal.toReal
+        return realVal.Plus(Real(0.5))
+    end
+    
+    method testRealToInt : Integer is
+        var realVal : Real(123.789)
+        return realVal.toInteger
+    end
+    
+    method testMixedArithmetic : Real is
+        var intPart : Integer(10)
+        var realPart : Real(2.5)
+        return intPart.toReal.Mult(realPart)
+    end
+    
+    method testChainedConversions : Integer is
+        var start : Integer(100)
+        var asReal : start.toReal
+        var doubled : asReal.Mult(Real(2.0))
+        var halved : doubled.Div(Real(2.0))
+        return halved.toInteger
+    end
+    
+    method testNegativeConversion : Integer is
+        var negative : Real(-15.7)
+        return negative.toInteger
+    end
+end
+
+class ComplexExpressionTest is
+    method expression1(a: Integer, b: Integer, c: Integer) : Integer is
+        return a.Plus(b).Mult(c).Minus(a.Mult(b))
+    end
+    
+    method expression2(x: Real, y: Real) : Real is
+        return x.Mult(x).Plus(y.Mult(y)).Div(Real(2.0))
+    end
+    
+    method expression3(n: Integer) : Real is
+        var square : n.Mult(n)
+        var cube : square.Mult(n)
+        return cube.toReal.Div(Real(100.0))
+    end
+    
+    method conditionalExpression(a: Integer, b: Integer) : Integer is
+        if a.Greater(b) then
+            return a.Minus(b)
+        else
+            return b.Minus(a)
+        end
+    end
+    
+    method multipleReturns(n: Integer) : Integer is
+        if n.Less(Integer(0)) then
+            return Integer(0).Minus(n)
+        end
+        if n.Equal(Integer(0)) then
+            return Integer(0)
+        end
+        return n
+    end
+end
+
+class TestRunner is
+    this() is
+        print(Integer(1000))
+        
+        var p1 : Point2D(Real(3.0), Real(4.0))
+        print(p1.getX.toInteger)
+        print(p1.getY.toInteger)
+        print(p1.distanceFromOrigin.toInteger)
+        
+        var p2 : Point2D(Real(1.0), Real(2.0))
+        var p3 : p1.add(p2)
+        print(p3.getX.toInteger)
+        print(p3.getY.toInteger)
+        
+        var p4 : p1.scale(Real(2.0))
+        print(p4.getX.toInteger)
+        print(p4.getY.toInteger)
+        
+        print(p1.toIntegerX)
+        print(p1.toIntegerY)
+        
+        print(Integer(2000))
+        
+        var v1 : Vector3D(Real(1.0), Real(2.0), Real(3.0))
+        print(v1.magnitude.toInteger)
+        
+        var v2 : Vector3D(Real(4.0), Real(5.0), Real(6.0))
+        print(v1.dotProduct(v2).toInteger)
+        
+        print(Integer(3000))
+        
+        var math : MathUtils()
+        print(math.intToReal(Integer(100)).toInteger)
+        print(math.realToInt(Real(99.9)))
+        print(math.addReals(Real(10.5), Real(20.5)).toInteger)
+        print(math.subtractReals(Real(50.0), Real(30.0)).toInteger)
+        print(math.multiplyReals(Real(5.0), Real(6.0)).toInteger)
+        print(math.divideReals(Real(100.0), Real(4.0)).toInteger)
+        print(math.compareReals(Real(5.0), Real(10.0)))
+        print(math.compareReals(Real(10.0), Real(5.0)))
+        
+        var intArr : Array[Integer](5)
+        intArr.set(Integer(0), Integer(10))
+        intArr.set(Integer(1), Integer(20))
+        intArr.set(Integer(2), Integer(30))
+        intArr.set(Integer(3), Integer(40))
+        intArr.set(Integer(4), Integer(50))
+        print(math.sumIntArray(intArr))
+        print(math.averageIntArray(intArr).toInteger)
+        
+        print(Integer(4000))
+        
+        var circle : Circle(Real(0.0), Real(0.0), Real(5.0))
+        print(circle.area.toInteger)
+        print(circle.circumference.toInteger)
+        print(circle.containsPoint(Real(3.0), Real(3.0)))
+        print(circle.containsPoint(Real(10.0), Real(10.0)))
+        
+        circle.scale(Real(2.0))
+        print(circle.getRadius.toInteger)
+        print(circle.area.toInteger)
+        
+        print(Integer(5000))
+        
+        var rect : Rectangle(Real(10.0), Real(5.0))
+        print(rect.area.toInteger)
+        print(rect.perimeter.toInteger)
+        print(rect.isSquare)
+        print(rect.diagonal.toInteger)
+        
+        var square : Rectangle(Real(7.0), Real(7.0))
+        print(square.isSquare)
+        
+        print(Integer(6000))
+        
+        var conv : TypeConversionTest()
+        print(conv.testIntToReal.toInteger)
+        print(conv.testRealToInt)
+        print(conv.testMixedArithmetic.toInteger)
+        print(conv.testChainedConversions)
+        print(conv.testNegativeConversion)
+        
+        print(Integer(7000))
+        
+        var expr : ComplexExpressionTest()
+        print(expr.expression1(Integer(5), Integer(3), Integer(2)))
+        print(expr.expression2(Real(3.0), Real(4.0)).toInteger)
+        print(expr.expression3(Integer(5)).toInteger)
+        print(expr.conditionalExpression(Integer(10), Integer(3)))
+        print(expr.conditionalExpression(Integer(3), Integer(10)))
+        print(expr.multipleReturns(Integer(-5)))
+        print(expr.multipleReturns(Integer(0)))
+        print(expr.multipleReturns(Integer(7)))
+        
+        print(Integer(8000))
+    end
+end
