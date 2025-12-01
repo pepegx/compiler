@@ -74,6 +74,7 @@ namespace O_Lexer
         }
 
         private char Current => _pos < _input.Length ? _input[_pos] : '\0';
+        private char Peek => _pos + 1 < _input.Length ? _input[_pos + 1] : '\0';
         private bool AtEnd => _pos >= _input.Length;
 
         private void Advance()
@@ -99,6 +100,40 @@ namespace O_Lexer
 
             if (_pos >= _input.Length)
                 return new Token(TokenType.EOF, "");
+
+            if (Current == '/' && Peek == '/')
+            {
+                while (Current != '\n' && !AtEnd) Advance();
+                if (!AtEnd) Advance();
+                return NextToken();
+            }
+
+            if (Current == '/' && Peek == '*')
+            {
+                Advance();
+                Advance();
+                int depth = 1;
+                while (depth > 0 && !AtEnd)
+                {
+                    if (Current == '/' && Peek == '*')
+                    {
+                        depth++;
+                        Advance();
+                        Advance();
+                    }
+                    else if (Current == '*' && Peek == '/')
+                    {
+                        depth--;
+                        Advance();
+                        Advance();
+                    }
+                    else
+                    {
+                        Advance();
+                    }
+                }
+                return NextToken();
+            }
 
             char c = Current;
 
