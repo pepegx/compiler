@@ -1,0 +1,31 @@
+class Loops is
+    method sumToN(n: Integer) : Integer is
+        var sum : Integer(0)
+        var i : Integer(1)
+        
+        while i.LessEqual(n) loop
+            sum := sum.Plus(i)
+            i := i.Plus(Integer(1))
+        end
+        
+        return sum
+    end
+    
+    method factorial(n: Integer) : Integer is
+        var result : Integer(1)
+        var i : Integer(1)
+        
+        while i.LessEqual(n) loop
+            result := result.Mult(i)
+            i := i.Plus(Integer(1))
+        end
+        
+        return result
+    end
+    
+    this() is
+        var sum : this.sumToN(Integer(10))
+        var fact : this.factorial(Integer(5))
+    end
+end
+

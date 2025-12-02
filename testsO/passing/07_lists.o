@@ -1,0 +1,26 @@
+class ListTest is
+    method processList(lst: List[Integer]) : Integer is
+        var sum : Integer(0)
+        var current : lst
+        
+        while current.Length().Greater(Integer(0)) loop
+            var head : current.head
+            sum := sum.Plus(head)
+            current := current.tail
+        end
+        
+        return sum
+    end
+    
+    this() is
+        var lst : List[Integer]()
+        lst := lst.append(Integer(1))
+        lst := lst.append(Integer(2))
+        lst := lst.append(Integer(3))
+        lst := lst.append(Integer(4))
+        lst := lst.append(Integer(5))
+        
+        var total : this.processList(lst)
+    end
+end
+

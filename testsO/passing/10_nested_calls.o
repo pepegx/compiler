@@ -1,0 +1,19 @@
+class NestedCalls is
+    method add(a: Integer, b: Integer) : Integer is
+        return a.Plus(b)
+    end
+    
+    method multiply(a: Integer, b: Integer) : Integer is
+        return a.Mult(b)
+    end
+    
+    method calculate(x: Integer, y: Integer, z: Integer) : Integer is
+        var sum : this.add(x, y)
+        return this.multiply(sum, z)
+    end
+    
+    this() is
+        var result : this.calculate(Integer(2), Integer(3), Integer(4))
+    end
+end
+

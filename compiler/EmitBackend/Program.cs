@@ -27,6 +27,7 @@ namespace EmitBackend
             }
 
             bool compileNet = Array.IndexOf(args, "--compile-net") >= 0;
+            bool enableOptimizations = Array.IndexOf(args, "--no-optimize") < 0;
             string outputPath = null;
             string entryClass = null;
 
@@ -60,7 +61,7 @@ namespace EmitBackend
 
                 // Семантический анализ
                 var analyzer = new SemanticAnalyzer();
-                ast = analyzer.Analyze(ast, enableOptimizations: true);
+                ast = analyzer.Analyze(ast, enableOptimizations: enableOptimizations);
 
                 // Компиляция в .NET сборку
                 if (compileNet)

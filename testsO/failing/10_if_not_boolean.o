@@ -1,0 +1,9 @@
+class Test is
+    this() is
+        var x : Integer(5)
+        if x then
+            var y : Integer(10)
+        end
+    end
+end
+

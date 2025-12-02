@@ -285,9 +285,19 @@ namespace O_Parser
             if (Check(TokenType.Return)) return ParseReturn();
 
             // Check for assignment: identifier/keyword followed by :=
+            // Also support this.field := value syntax
             bool isAssign = false;
             string? assignName = null;
-            if (Check(TokenType.Identifier) && LA(1).Type == TokenType.Assign)
+            
+            // Check for this.field := value
+            if (Check(TokenType.This) && LA(1).Type == TokenType.Dot && LA(2).Type == TokenType.Identifier && LA(3).Type == TokenType.Assign)
+            {
+                isAssign = true;
+                Expect(TokenType.This);
+                Expect(TokenType.Dot);
+                assignName = Expect(TokenType.Identifier).Value;
+            }
+            else if (Check(TokenType.Identifier) && LA(1).Type == TokenType.Assign)
             {
                 isAssign = true;
                 assignName = Expect(TokenType.Identifier).Value;

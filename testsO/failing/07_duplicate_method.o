@@ -1,0 +1,10 @@
+class Test is
+    method add(a: Integer, b: Integer) : Integer is
+        return a.Plus(b)
+    end
+    
+    method add(a: Integer, b: Integer) : Integer is
+        return a.Mult(b)
+    end
+end
+

@@ -1,0 +1,10 @@
+class Unreachable is
+    method test : Integer is
+        return Integer(42)
+        var unreachable1 : Integer(10)
+        var unreachable2 : Integer(20)
+        var unreachable3 : unreachable1.Plus(unreachable2)
+        var unreachable4 : Integer(100)
+    end
+end
+

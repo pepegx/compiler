@@ -1,0 +1,10 @@
+class IfTrue is
+    method test : Integer is
+        if true then
+            return Integer(42)
+        else
+            return Integer(0)
+        end
+    end
+end
+

@@ -1,0 +1,18 @@
+class Basic is
+    var x : Integer(10)
+    var y : Real(3.14)
+    
+    this() is
+        var sum : x.Plus(Integer(5))
+        var product : y.Mult(Real(2.0))
+    end
+    
+    method getX : Integer is
+        return this.x
+    end
+    
+    method add(a: Integer, b: Integer) : Integer is
+        return a.Plus(b)
+    end
+end
+

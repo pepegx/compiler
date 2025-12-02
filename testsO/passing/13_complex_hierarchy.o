@@ -1,0 +1,114 @@
+class Animal is
+    var name : String("Animal")
+    var age : Integer(0)
+    
+    this(n: String, a: Integer) is
+        name := n
+        age := a
+    end
+    
+    method getName : String is
+        return this.name
+    end
+    
+    method getAge : Integer is
+        return this.age
+    end
+    
+    method speak : String is
+        return String("...")
+    end
+end
+
+class Dog extends Animal is
+    var breed : String("Unknown")
+    
+    this(n: String, a: Integer, b: String) is
+        name := n
+        age := a
+        breed := b
+    end
+    
+    method speak : String is
+        return String("Woof!")
+    end
+    
+    method getBreed : String is
+        return this.breed
+    end
+end
+
+class Cat extends Animal is
+    var color : String("Unknown")
+    
+    this(n: String, a: Integer, c: String) is
+        name := n
+        age := a
+        color := c
+    end
+    
+    method speak : String is
+        return String("Meow!")
+    end
+    
+    method getColor : String is
+        return this.color
+    end
+end
+
+class PetOwner is
+    var name : String("Owner")
+    var pet : Animal(Animal(String("Pet"), Integer(1)))
+    
+    this(ownerName: String, petName: String, petAge: Integer) is
+        name := ownerName
+        pet := Animal(petName, petAge)
+    end
+    
+    method getPetName : String is
+        return pet.getName
+    end
+    
+    method getPetAge : Integer is
+        return pet.getAge
+    end
+end
+
+class DogOwner extends PetOwner is
+    var dog : Dog(Dog(String("Dog"), Integer(1), String("Labrador")))
+    
+    this(ownerName: String, dogName: String, dogAge: Integer, dogBreed: String) is
+        name := ownerName
+        dog := Dog(dogName, dogAge, dogBreed)
+        pet := dog
+    end
+    
+    method getDogBreed : String is
+        return dog.getBreed
+    end
+end
+
+class PetShop is
+    method getPetInfo(owner: PetOwner) : String is
+        return owner.getPetName
+    end
+    
+    method getDogInfo(owner: DogOwner) : String is
+        var name : owner.getPetName
+        var breed : owner.getDogBreed
+        return name
+    end
+end
+
+class PetApp is
+    this() is
+        var shop : PetShop()
+        var owner1 : PetOwner(String("John"), String("Fluffy"), Integer(3))
+        var owner2 : DogOwner(String("Jane"), String("Max"), Integer(2), String("Golden Retriever"))
+        
+        var info1 : shop.getPetInfo(owner1)
+        var info2 : shop.getDogInfo(owner2)
+        var dogBreed : owner2.getDogBreed
+    end
+end
+

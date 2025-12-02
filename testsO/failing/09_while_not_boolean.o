@@ -1,0 +1,9 @@
+class Test is
+    this() is
+        var x : Integer(5)
+        while x loop
+            x := x.Minus(Integer(1))
+        end
+    end
+end
+

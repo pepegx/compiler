@@ -1,0 +1,10 @@
+class UnusedLocals is
+    method test : Integer is
+        var used : Integer(10)
+        var unused1 : Integer(20)
+        var unused2 : Real(3.14)
+        var result : used.Plus(Integer(5))
+        return result
+    end
+end
+

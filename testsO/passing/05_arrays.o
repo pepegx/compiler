@@ -1,0 +1,26 @@
+class ArrayTest is
+    method sumArray(arr: Array[Integer], size: Integer) : Integer is
+        var sum : Integer(0)
+        var i : Integer(0)
+        
+        while i.Less(size) loop
+            var value : arr.get(i)
+            sum := sum.Plus(value)
+            i := i.Plus(Integer(1))
+        end
+        
+        return sum
+    end
+    
+    this() is
+        var arr : Array[Integer](Integer(5))
+        arr.set(Integer(0), Integer(10))
+        arr.set(Integer(1), Integer(20))
+        arr.set(Integer(2), Integer(30))
+        arr.set(Integer(3), Integer(40))
+        arr.set(Integer(4), Integer(50))
+        
+        var total : this.sumArray(arr, Integer(5))
+    end
+end
+

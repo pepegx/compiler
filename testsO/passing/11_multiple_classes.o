@@ -1,0 +1,75 @@
+class Point is
+    var x : Integer(0)
+    var y : Integer(0)
+    
+    this(px: Integer, py: Integer) is
+        x := px
+        y := py
+    end
+    
+    method getX : Integer is
+        return this.x
+    end
+    
+    method getY : Integer is
+        return this.y
+    end
+    
+    method distance(other: Point) : Real is
+        var dx : this.x.Minus(other.getX)
+        var dy : this.y.Minus(other.getY)
+        var dx2 : dx.Mult(dx)
+        var dy2 : dy.Mult(dy)
+        var sum : dx2.toReal.Plus(dy2.toReal)
+        return sum
+    end
+end
+
+class Rectangle is
+    var topLeft : Point(Point(Integer(0), Integer(0)))
+    var bottomRight : Point(Point(Integer(0), Integer(0)))
+    
+    this(x1: Integer, y1: Integer, x2: Integer, y2: Integer) is
+        topLeft := Point(x1, y1)
+        bottomRight := Point(x2, y2)
+    end
+    
+    method getArea : Integer is
+        var width : bottomRight.getX.Minus(topLeft.getX)
+        var height : bottomRight.getY.Minus(topLeft.getY)
+        return width.Mult(height)
+    end
+    
+    method getPerimeter : Integer is
+        var width : bottomRight.getX.Minus(topLeft.getX)
+        var height : bottomRight.getY.Minus(topLeft.getY)
+        var sum : width.Plus(height)
+        return sum.Mult(Integer(2))
+    end
+end
+
+class Calculator is
+    method add(a: Integer, b: Integer) : Integer is
+        return a.Plus(b)
+    end
+    
+    method multiply(a: Integer, b: Integer) : Integer is
+        return a.Mult(b)
+    end
+end
+
+class GeometryApp is
+    this() is
+        var calc : Calculator()
+        var p1 : Point(Integer(3), Integer(4))
+        var p2 : Point(Integer(0), Integer(0))
+        var dist : p1.distance(p2)
+        
+        var rect : Rectangle(Integer(0), Integer(0), Integer(10), Integer(5))
+        var area : rect.getArea
+        var perimeter : rect.getPerimeter
+        
+        var sum : calc.add(area, perimeter)
+    end
+end
+

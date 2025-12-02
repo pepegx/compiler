@@ -1,0 +1,6 @@
+class Test is
+    this() is
+        var obj : UnknownClass()
+    end
+end
+

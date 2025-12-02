@@ -165,11 +165,17 @@ namespace EmitBackend
 
             // Сначала создаем все методы (только MethodBuilder, без тела)
             // Это нужно, чтобы методы были доступны при эмиссии конструкторов
+            // Сначала создаем все методы (без тел) для поддержки взаимных вызовов
+            // Пропускаем forward-декларации (методы без тела)
             foreach (var member in cls.Members)
             {
                 if (member is MethodDeclNode method)
                 {
-                    CreateMethodBuilder(typeBuilder, cls, method);
+                    // Пропускаем forward-декларации - создаем MethodBuilder только для методов с телом
+                    if (method.Body != null || method.ArrowExpr != null)
+                    {
+                        CreateMethodBuilder(typeBuilder, cls, method);
+                    }
                 }
             }
 
@@ -194,11 +200,16 @@ namespace EmitBackend
             }
 
             // Теперь эмитим тела методов (они могут вызывать другие методы)
+            // Пропускаем forward-декларации (методы без тела)
             foreach (var member in cls.Members)
             {
                 if (member is MethodDeclNode method)
                 {
-                    EmitMethodBody(typeBuilder, cls, method);
+                    // Пропускаем forward-декларации - эмитим тело только для методов с телом
+                    if (method.Body != null || method.ArrowExpr != null)
+                    {
+                        EmitMethodBody(typeBuilder, cls, method);
+                    }
                 }
             }
         }
@@ -207,11 +218,35 @@ namespace EmitBackend
         {
             var realType = InferType(field.Initializer);
             
-            // Если realType равен object, попробуем найти класс напрямую
+            // Если realType равен object, проверяем, является ли Initializer именем типа
             if (realType == typeof(object))
             {
+                if (field.Initializer is IdentifierExpr typeId)
+                {
+                    // Проверяем встроенные типы
+                    if (typeId.Name == "Integer")
+                    {
+                        realType = typeof(int);
+                    }
+                    else if (typeId.Name == "Real")
+                    {
+                        realType = typeof(double);
+                    }
+                    else if (typeId.Name == "Boolean")
+                    {
+                        realType = typeof(bool);
+                    }
+                    else if (typeId.Name == "String")
+                    {
+                        realType = typeof(string);
+                    }
+                    else if (_classes.TryGetValue(typeId.Name, out var classTypeBuilder))
+                    {
+                        realType = classTypeBuilder;
+                    }
+                }
                 // Проверяем NewExpr
-                if (field.Initializer is NewExpr newExpr)
+                else if (field.Initializer is NewExpr newExpr)
                 {
                     // Проверяем массив
                     if (newExpr.ClassName.StartsWith("Array[") && newExpr.ClassName.EndsWith("]"))
@@ -729,14 +764,26 @@ namespace EmitBackend
                             if (typeId.Name == "Integer")
                             {
                                 il.Emit(OpCodes.Ldc_I4_0);
+                                if (fieldBuilder.FieldType == typeof(object))
+                                {
+                                    il.Emit(OpCodes.Box, typeof(int));
+                                }
                             }
                             else if (typeId.Name == "Real")
                             {
                                 il.Emit(OpCodes.Ldc_R8, 0.0);
+                                if (fieldBuilder.FieldType == typeof(object))
+                                {
+                                    il.Emit(OpCodes.Box, typeof(double));
+                                }
                             }
                             else if (typeId.Name == "Boolean")
                             {
                                 il.Emit(OpCodes.Ldc_I4_0);
+                                if (fieldBuilder.FieldType == typeof(object))
+                                {
+                                    il.Emit(OpCodes.Box, typeof(bool));
+                                }
                             }
                             else if (typeId.Name == "String")
                             {
@@ -752,6 +799,63 @@ namespace EmitBackend
                         {
                             ILEmitter.EmitExpression(context, field.Initializer);
                         }
+                        
+                        if (fieldBuilder.FieldType == typeof(object))
+                        {
+                            Type fieldRealType = null;
+                            if (_classFieldRealTypes.TryGetValue(typeBuilder.Name, out var realTypes))
+                            {
+                                realTypes.TryGetValue(field.Name, out fieldRealType);
+                            }
+                            
+                            if (fieldRealType == typeof(int))
+                            {
+                                il.Emit(OpCodes.Box, typeof(int));
+                            }
+                            else if (fieldRealType == typeof(double))
+                            {
+                                il.Emit(OpCodes.Box, typeof(double));
+                            }
+                            else if (fieldRealType == typeof(bool))
+                            {
+                                il.Emit(OpCodes.Box, typeof(bool));
+                            }
+                            else if (fieldRealType == null)
+                            {
+                                if (field.Initializer is IdentifierExpr typeId2)
+                                {
+                                    if (typeId2.Name == "Integer")
+                                    {
+                                        il.Emit(OpCodes.Box, typeof(int));
+                                    }
+                                    else if (typeId2.Name == "Real")
+                                    {
+                                        il.Emit(OpCodes.Box, typeof(double));
+                                    }
+                                    else if (typeId2.Name == "Boolean")
+                                    {
+                                        il.Emit(OpCodes.Box, typeof(bool));
+                                    }
+                                }
+                                else
+                                {
+                                    var valueType = ILEmitter.InferType(field.Initializer, context);
+                                    if (valueType == typeof(int))
+                                    {
+                                        il.Emit(OpCodes.Box, typeof(int));
+                                    }
+                                    else if (valueType == typeof(double))
+                                    {
+                                        il.Emit(OpCodes.Box, typeof(double));
+                                    }
+                                    else if (valueType == typeof(bool))
+                                    {
+                                        il.Emit(OpCodes.Box, typeof(bool));
+                                    }
+                                }
+                            }
+                        }
+                        
                         il.Emit(OpCodes.Stfld, fieldBuilder);
                     }
                 }

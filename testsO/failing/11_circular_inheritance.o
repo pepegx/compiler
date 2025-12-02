@@ -1,0 +1,12 @@
+class A extends B is
+    var x : Integer(1)
+end
+
+class B extends C is
+    var y : Integer(2)
+end
+
+class C extends A is
+    var z : Integer(3)
+end
+

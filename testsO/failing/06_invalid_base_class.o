@@ -1,0 +1,4 @@
+class Test extends NonExistentClass is
+    var x : Integer(10)
+end
+

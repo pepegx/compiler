@@ -1,0 +1,12 @@
+class SideEffects is
+    method helper : Integer is
+        return Integer(5)
+    end
+    
+    method test : Integer is
+        var unused : this.helper
+        var used : Integer(10)
+        return used
+    end
+end
+

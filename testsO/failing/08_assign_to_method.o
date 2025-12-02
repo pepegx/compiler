@@ -1,0 +1,10 @@
+class Test is
+    method getValue : Integer is
+        return Integer(10)
+    end
+    
+    this() is
+        getValue := Integer(20)
+    end
+end
+

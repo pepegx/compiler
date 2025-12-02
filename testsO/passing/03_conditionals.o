@@ -1,0 +1,20 @@
+class Conditionals is
+    method max(a: Integer, b: Integer) : Integer is
+        if a.Greater(b) then
+            return a
+        else
+            return b
+        end
+    end
+    
+    method isEven(n: Integer) : Boolean is
+        var remainder : n.Rem(Integer(2))
+        return remainder.Equal(Integer(0))
+    end
+    
+    this() is
+        var maxVal : this.max(Integer(15), Integer(23))
+        var check : this.isEven(Integer(8))
+    end
+end
+

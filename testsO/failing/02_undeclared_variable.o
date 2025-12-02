@@ -1,0 +1,6 @@
+class Test is
+    this() is
+        var result : x.Plus(Integer(5))
+    end
+end
+

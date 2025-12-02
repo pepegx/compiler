@@ -1,0 +1,29 @@
+class BooleanOps is
+    method andTest(a: Boolean, b: Boolean) : Boolean is
+        return a.And(b)
+    end
+    
+    method orTest(a: Boolean, b: Boolean) : Boolean is
+        return a.Or(b)
+    end
+    
+    method notTest(a: Boolean) : Boolean is
+        return a.Not
+    end
+    
+    method complexLogic(x: Integer, y: Integer) : Boolean is
+        var xPositive : x.Greater(Integer(0))
+        var yPositive : y.Greater(Integer(0))
+        var bothPositive : xPositive.And(yPositive)
+        var eitherPositive : xPositive.Or(yPositive)
+        return bothPositive.And(eitherPositive)
+    end
+    
+    this() is
+        var andResult : this.andTest(Boolean(true), Boolean(false))
+        var orResult : this.orTest(Boolean(true), Boolean(false))
+        var notResult : this.notTest(Boolean(true))
+        var complex : this.complexLogic(Integer(5), Integer(10))
+    end
+end
+

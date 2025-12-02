@@ -1,0 +1,10 @@
+class Test is
+    var x : Integer(10)
+end
+
+class Main is
+    this() is
+        return Integer(5)
+    end
+end
+

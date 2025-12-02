@@ -1,7 +1,0 @@
-class Counter is
-    var value : Integer(0)
-    method inc is
-        value := value.Plus(1)
-    end
-    method get : Integer => value
-end

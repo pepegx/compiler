@@ -1,0 +1,12 @@
+class WhileFalse is
+    method test : Integer is
+        var x : Integer(10)
+        
+        while false loop
+            x := x.Plus(Integer(1))
+        end
+        
+        return x
+    end
+end
+

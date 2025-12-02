@@ -1,0 +1,73 @@
+class BankAccount is
+    var balance : Integer(0)
+    var accountId : Integer(0)
+    
+    this(id: Integer, initialBalance: Integer) is
+        accountId := id
+        balance := initialBalance
+    end
+    
+    method deposit(amount: Integer) : Integer is
+        balance := balance.Plus(amount)
+        return balance
+    end
+    
+    method withdraw(amount: Integer) : Integer is
+        if amount.LessEqual(balance) then
+            balance := balance.Minus(amount)
+        end
+        return balance
+    end
+    
+    method getBalance : Integer is
+        return this.balance
+    end
+end
+
+class Bank is
+    method transfer(from: BankAccount, to: BankAccount, amount: Integer) : Boolean is
+        var fromBalance : from.getBalance
+        if amount.LessEqual(fromBalance) then
+            var newFromBalance : from.withdraw(amount)
+            var newToBalance : to.deposit(amount)
+            return Boolean(true)
+        else
+            return Boolean(false)
+        end
+    end
+    
+    method totalBalance(account1: BankAccount, account2: BankAccount) : Integer is
+        var balance1 : account1.getBalance
+        var balance2 : account2.getBalance
+        return balance1.Plus(balance2)
+    end
+end
+
+class Customer is
+    var name : String("Customer")
+    var account : BankAccount(BankAccount(Integer(1), Integer(0)))
+    
+    this(n: String, accId: Integer, initialBalance: Integer) is
+        name := n
+        account := BankAccount(accId, initialBalance)
+    end
+    
+    method getAccountBalance : Integer is
+        return account.getBalance
+    end
+end
+
+class BankingApp is
+    this() is
+        var bank : Bank()
+        var customer1 : Customer(String("Alice"), Integer(1), Integer(1000))
+        var customer2 : Customer(String("Bob"), Integer(2), Integer(500))
+        
+        var balance1 : customer1.getAccountBalance
+        var balance2 : customer2.getAccountBalance
+        
+        var success : bank.transfer(customer1.account, customer2.account, Integer(200))
+        var total : bank.totalBalance(customer1.account, customer2.account)
+    end
+end
+

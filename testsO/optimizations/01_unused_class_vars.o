@@ -1,0 +1,12 @@
+class UnusedVars is
+    var used : Integer(10)
+    var unused1 : Integer(20)
+    var unused2 : Real(3.14)
+    
+    method test : Integer is
+        var temp : used
+        var result : temp.Plus(Integer(5))
+        return result
+    end
+end
+

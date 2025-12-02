@@ -1,0 +1,13 @@
+class Test is
+    method getValue : Integer is
+        return Integer(10)
+    end
+end
+
+class Main is
+    this() is
+        var t : Test()
+        var value : t.nonExistentField
+    end
+end
+

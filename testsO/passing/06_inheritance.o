@@ -1,0 +1,41 @@
+class Animal is
+    var name : String("Animal")
+    
+    method getName : String is
+        return this.name
+    end
+    
+    method speak : String is
+        return String("...")
+    end
+end
+
+class Dog extends Animal is
+    this(n: String) is
+        name := n
+    end
+    
+    method speak : String is
+        return String("Woof!")
+    end
+end
+
+class Cat extends Animal is
+    this(n: String) is
+        name := n
+    end
+    
+    method speak : String is
+        return String("Meow!")
+    end
+end
+
+class Test is
+    this() is
+        var dog : Dog(String("Buddy"))
+        var cat : Cat(String("Whiskers"))
+        var dogSound : dog.speak
+        var catSound : cat.speak
+    end
+end
+

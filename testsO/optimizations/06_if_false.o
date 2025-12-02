@@ -1,0 +1,10 @@
+class IfFalse is
+    method test : Integer is
+        if false then
+            return Integer(0)
+        else
+            return Integer(42)
+        end
+    end
+end
+

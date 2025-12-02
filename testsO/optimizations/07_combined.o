@@ -1,0 +1,18 @@
+class Combined is
+    var used : Integer(10)
+    var unused : Integer(20)
+    
+    method test : Integer is
+        var unusedLocal : Integer(30)
+        
+        if true then
+            var temp : used
+            var result : temp.Plus(Integer(5))
+            return result
+        end
+        
+        var unreachable : Integer(100)
+        return Integer(0)
+    end
+end
+

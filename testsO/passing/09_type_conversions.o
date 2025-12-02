@@ -1,0 +1,21 @@
+class Conversions is
+    method intToReal(i: Integer) : Real is
+        return i.toReal
+    end
+    
+    method realToInt(r: Real) : Integer is
+        return r.toInteger
+    end
+    
+    method intToBool(i: Integer) : Boolean is
+        return i.toBoolean
+    end
+    
+    this() is
+        var intVal : Integer(42)
+        var realVal : this.intToReal(intVal)
+        var backToInt : this.realToInt(realVal)
+        var boolVal : this.intToBool(intVal)
+    end
+end
+
