@@ -1,0 +1,130 @@
+class Shape is
+    var id : Integer(0)
+    
+    this(i: Integer) is
+        id := i
+    end
+    
+    method getArea : Integer is
+        return Integer(0)
+    end
+    
+    method getId : Integer is
+        return this.id
+    end
+end
+
+class Circle extends Shape is
+    var radius : Integer(0)
+    
+    this(i: Integer, r: Integer) is
+        id := i
+        radius := r
+    end
+    
+    method getArea : Integer is
+        return this.radius.Mult(this.radius).Mult(Integer(3))
+    end
+    
+    method getRadius : Integer is
+        return this.radius
+    end
+end
+
+class Rectangle extends Shape is
+    var width : Integer(0)
+    var height : Integer(0)
+    
+    this(i: Integer, w: Integer, h: Integer) is
+        id := i
+        width := w
+        height := h
+    end
+    
+    method getArea : Integer is
+        return this.width.Mult(this.height)
+    end
+    
+    method getWidth : Integer is
+        return this.width
+    end
+    
+    method getHeight : Integer is
+        return this.height
+    end
+end
+
+class Triangle extends Shape is
+    var base : Integer(0)
+    var height : Integer(0)
+    
+    this(i: Integer, b: Integer, h: Integer) is
+        id := i
+        base := b
+        height := h
+    end
+    
+    method getArea : Integer is
+        return this.base.Mult(this.height).Div(Integer(2))
+    end
+end
+
+class ShapeProcessor is
+    method processShape(s: Shape) : Integer is
+        return s.getArea
+    end
+    
+    method getShapeId(s: Shape) : Integer is
+        return s.getId
+    end
+end
+
+class ShapeTest is
+    this() is
+        var circle : Circle(Integer(1), Integer(5))
+        var rectangle : Rectangle(Integer(2), Integer(4), Integer(6))
+        var triangle : Triangle(Integer(3), Integer(8), Integer(3))
+        
+        var shape1 : Shape(Integer(0))
+        var shape2 : Shape(Integer(0))
+        var shape3 : Shape(Integer(0))
+        
+        shape1 := circle
+        shape2 := rectangle
+        shape3 := triangle
+        
+        var processor : ShapeProcessor()
+        
+        var area1 : shape1.getArea
+        var area2 : shape2.getArea
+        var area3 : shape3.getArea
+        
+        var processedArea1 : processor.processShape(shape1)
+        var processedArea2 : processor.processShape(shape2)
+        var processedArea3 : processor.processShape(shape3)
+        
+        var id1 : shape1.getId
+        var id2 : shape2.getId
+        var id3 : shape3.getId
+        
+        var circleArea : circle.getArea
+        var rectangleArea : rectangle.getArea
+        var triangleArea : triangle.getArea
+        
+        var circleRadius : circle.getRadius
+        var rectWidth : rectangle.getWidth
+        var rectHeight : rectangle.getHeight
+        
+        print(Integer(1))
+        print(circleArea)
+        print(rectangleArea)
+        print(triangleArea)
+        print(area1)
+        print(area2)
+        print(area3)
+        print(processedArea1)
+        print(processedArea2)
+        print(processedArea3)
+    end
+end
+
