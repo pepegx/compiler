@@ -1,6 +1,5 @@
-class Test is
+class Test extends UnknownClass is
     this() is
-        var obj : UnknownClass()
     end
 end
 

@@ -1,39 +1,39 @@
 class Animal is
-    var name : String("Animal")
+    var name : Integer(0)
     
-    method getName : String is
+    method getName : Integer is
         return this.name
     end
     
-    method speak : String is
-        return String("...")
+    method speak : Integer is
+        return Integer(0)
     end
 end
 
 class Dog extends Animal is
-    this(n: String) is
+    this(n: Integer) is
         name := n
     end
     
-    method speak : String is
-        return String("Woof!")
+    method speak : Integer is
+        return Integer(1)
     end
 end
 
 class Cat extends Animal is
-    this(n: String) is
+    this(n: Integer) is
         name := n
     end
     
-    method speak : String is
-        return String("Meow!")
+    method speak : Integer is
+        return Integer(2)
     end
 end
 
 class Test is
     this() is
-        var dog : Dog(String("Buddy"))
-        var cat : Cat(String("Whiskers"))
+        var dog : Dog(Integer(10))
+        var cat : Cat(Integer(20))
         var dogSound : dog.speak
         var catSound : cat.speak
     end

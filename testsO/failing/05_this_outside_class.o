@@ -1,13 +1,32 @@
 class Test is
+    var x : Integer(10)
     method getValue : Integer is
-        return Integer(10)
+        return this.x
     end
 end
 
 class Main is
     this() is
-        var t : Test()
-        var value : t.nonExistentField
+        var value : this.getValue
+    end
+end
+
+class OutsideClass is
+    method test is
+        var value : this.getValue
+    end
+    method test2 is
+        var x : Integer(10)
+    end
+    var field : this.getValue
+end
+
+class AnotherClass is
+    method test is
+        var x : Integer(10)
+    end
+    method test2 is
+        var y : undeclaredVariable
     end
 end
 

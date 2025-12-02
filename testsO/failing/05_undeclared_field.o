@@ -6,8 +6,7 @@ end
 
 class Main is
     this() is
-        var t : Test()
-        var value : t.nonExistentField
+        var value : undeclaredVariable
     end
 end
 

@@ -1,13 +1,13 @@
 class Animal is
-    var name : String("Animal")
+    var name : Integer(0)
     var age : Integer(0)
     
-    this(n: String, a: Integer) is
+    this(n: Integer, a: Integer) is
         name := n
         age := a
     end
     
-    method getName : String is
+    method getName : Integer is
         return this.name
     end
     
@@ -15,57 +15,57 @@ class Animal is
         return this.age
     end
     
-    method speak : String is
-        return String("...")
+    method speak : Integer is
+        return Integer(0)
     end
 end
 
 class Dog extends Animal is
-    var breed : String("Unknown")
+    var breed : Integer(0)
     
-    this(n: String, a: Integer, b: String) is
+    this(n: Integer, a: Integer, b: Integer) is
         name := n
         age := a
         breed := b
     end
     
-    method speak : String is
-        return String("Woof!")
+    method speak : Integer is
+        return Integer(1)
     end
     
-    method getBreed : String is
+    method getBreed : Integer is
         return this.breed
     end
 end
 
 class Cat extends Animal is
-    var color : String("Unknown")
+    var color : Integer(0)
     
-    this(n: String, a: Integer, c: String) is
+    this(n: Integer, a: Integer, c: Integer) is
         name := n
         age := a
         color := c
     end
     
-    method speak : String is
-        return String("Meow!")
+    method speak : Integer is
+        return Integer(2)
     end
     
-    method getColor : String is
+    method getColor : Integer is
         return this.color
     end
 end
 
 class PetOwner is
-    var name : String("Owner")
-    var pet : Animal(Animal(String("Pet"), Integer(1)))
+    var name : Integer(0)
+    var pet : Animal(Integer(0), Integer(1))
     
-    this(ownerName: String, petName: String, petAge: Integer) is
+    this(ownerName: Integer, petName: Integer, petAge: Integer) is
         name := ownerName
         pet := Animal(petName, petAge)
     end
     
-    method getPetName : String is
+    method getPetName : Integer is
         return pet.getName
     end
     
@@ -75,25 +75,25 @@ class PetOwner is
 end
 
 class DogOwner extends PetOwner is
-    var dog : Dog(Dog(String("Dog"), Integer(1), String("Labrador")))
+    var dog : Dog(Integer(0), Integer(1), Integer(10))
     
-    this(ownerName: String, dogName: String, dogAge: Integer, dogBreed: String) is
+    this(ownerName: Integer, dogName: Integer, dogAge: Integer, dogBreed: Integer) is
         name := ownerName
         dog := Dog(dogName, dogAge, dogBreed)
         pet := dog
     end
     
-    method getDogBreed : String is
+    method getDogBreed : Integer is
         return dog.getBreed
     end
 end
 
 class PetShop is
-    method getPetInfo(owner: PetOwner) : String is
+    method getPetInfo(owner: PetOwner) : Integer is
         return owner.getPetName
     end
     
-    method getDogInfo(owner: DogOwner) : String is
+    method getDogInfo(owner: DogOwner) : Integer is
         var name : owner.getPetName
         var breed : owner.getDogBreed
         return name
@@ -103,8 +103,8 @@ end
 class PetApp is
     this() is
         var shop : PetShop()
-        var owner1 : PetOwner(String("John"), String("Fluffy"), Integer(3))
-        var owner2 : DogOwner(String("Jane"), String("Max"), Integer(2), String("Golden Retriever"))
+        var owner1 : PetOwner(Integer(1), Integer(2), Integer(3))
+        var owner2 : DogOwner(Integer(4), Integer(5), Integer(2), Integer(6))
         
         var info1 : shop.getPetInfo(owner1)
         var info2 : shop.getDogInfo(owner2)

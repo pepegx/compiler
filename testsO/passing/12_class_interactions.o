@@ -44,10 +44,10 @@ class Bank is
 end
 
 class Customer is
-    var name : String("Customer")
-    var account : BankAccount(BankAccount(Integer(1), Integer(0)))
+    var name : Integer(0)
+    var account : BankAccount(Integer(1), Integer(0))
     
-    this(n: String, accId: Integer, initialBalance: Integer) is
+    this(n: Integer, accId: Integer, initialBalance: Integer) is
         name := n
         account := BankAccount(accId, initialBalance)
     end
@@ -60,8 +60,8 @@ end
 class BankingApp is
     this() is
         var bank : Bank()
-        var customer1 : Customer(String("Alice"), Integer(1), Integer(1000))
-        var customer2 : Customer(String("Bob"), Integer(2), Integer(500))
+        var customer1 : Customer(Integer(1), Integer(1), Integer(1000))
+        var customer2 : Customer(Integer(2), Integer(2), Integer(500))
         
         var balance1 : customer1.getAccountBalance
         var balance2 : customer2.getAccountBalance

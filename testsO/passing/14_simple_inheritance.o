@@ -1,0 +1,46 @@
+class Base is
+    var value : Integer(0)
+    
+    this(v: Integer) is
+        value := v
+    end
+    
+    method getValue : Integer is
+        return this.value
+    end
+    
+    method add(x: Integer) : Integer is
+        return this.value.Plus(x)
+    end
+end
+
+class Derived extends Base is
+    var extra : Integer(0)
+    
+    this(v: Integer, e: Integer) is
+        value := v
+        extra := e
+    end
+    
+    method getExtra : Integer is
+        return this.extra
+    end
+    
+    method getTotal : Integer is
+        return this.value.Plus(this.extra)
+    end
+end
+
+class TestInheritance is
+    this() is
+        var base : Base(Integer(10))
+        var derived : Derived(Integer(20), Integer(5))
+        
+        var baseValue : base.getValue
+        var derivedValue : derived.getValue
+        var derivedExtra : derived.getExtra
+        var derivedTotal : derived.getTotal
+        var baseAdd : base.add(Integer(3))
+    end
+end
+

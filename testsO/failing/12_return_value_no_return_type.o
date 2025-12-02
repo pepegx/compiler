@@ -1,0 +1,11 @@
+class ErrorTest is
+    var x : Integer(10)
+    
+    this() is
+    end
+    
+    method withReturnType : Integer is
+        return
+    end
+end
+
